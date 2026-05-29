@@ -240,7 +240,7 @@
       <div class="card-body">
         <div class="form-group">
           <label>학생 이름</label>
-          <input type="text" id="input-name" placeholder="이름을 입력하세요" autocomplete="off">
+          <input type="text" id="input-name" placeholder="이름을 입력하세요" autocomplete="off" lang="ko" inputmode="text">
         </div>
         <div class="form-group">
           <label>학부모 연락처 뒷 4자리</label>
@@ -572,6 +572,11 @@ function logout() {
 
 document.getElementById('input-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
 document.getElementById('input-name').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('input-pin').focus(); });
+
+// 페이지 로드 시 이름 입력창 포커스 (한글 입력 모드 유도)
+window.addEventListener('load', () => {
+  document.getElementById('input-name').focus();
+});
 </script>
 </body>
 </html>
