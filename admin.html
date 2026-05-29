@@ -320,7 +320,7 @@
 <script>
 const SUPABASE_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0';
-const ADMIN_PASSWORD = 'Heemang1!2@';
+const ADMIN_PASSWORD = '1357';
 
 // ── API 헬퍼 ──────────────────────────────────────────
 async function api(path, method='GET', body=null) {
@@ -423,6 +423,11 @@ async function deleteWeek(id) {
 }
 
 // ── 점수 입력 ─────────────────────────────────────────
+// 저장된 점수 캐시: { weekId: { studentId: scoreObj } }
+const scoreCache = {};
+// 학생 캐시: { classId: [student, ...] }
+const studentCache = {};
+
 async function loadWeeksForScore() {
   const classId = document.getElementById('score-class').value;
   const sel = document.getElementById('score-week');
@@ -445,22 +450,39 @@ async function loadScoreInputs() {
   const card = document.getElementById('score-input-card');
   const container = document.getElementById('score-inputs-container');
   card.style.display = 'block';
+
+  // 캐시에 이미 있으면 DB 조회 없이 캐시 사용
+  const cached = scoreCache[weekId];
+  if (cached) {
+    renderScoreInputs(classId, weekId, cached);
+    return;
+  }
+
   container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
 
-  const [students, scores] = await Promise.all([
-    api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`),
-    api(`scores?week_id=eq.${weekId}&select=*`)
-  ]);
+  // 학생 목록도 캐시
+  if (!studentCache[classId]) {
+    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`) || [];
+  }
+  const scores = await api(`scores?week_id=eq.${weekId}&select=*`) || [];
+
+  // 캐시 저장
+  scoreCache[weekId] = {};
+  scores.forEach(s => { scoreCache[weekId][s.student_id] = s; });
+
+  renderScoreInputs(classId, weekId, scoreCache[weekId]);
+}
+
+function renderScoreInputs(classId, weekId, scoreMap) {
+  const container = document.getElementById('score-inputs-container');
+  const students = studentCache[classId] || [];
 
   const className = classes.find(c => c.id == classId)?.name || '';
   const weekSel = document.getElementById('score-week');
   const weekLabel = weekSel.options[weekSel.selectedIndex]?.text || '';
   document.getElementById('score-input-title').textContent = `${className} — ${weekLabel}`;
 
-  const scoreMap = {};
-  (scores || []).forEach(s => { scoreMap[s.student_id] = s; });
-
-  container.innerHTML = (students || []).map(st => {
+  container.innerHTML = students.map(st => {
     const sc = scoreMap[st.id] || {};
     return `<div class="score-input-row" data-student-id="${st.id}">
       <span class="student-name">${st.name}</span>
@@ -475,6 +497,7 @@ async function loadScoreInputs() {
 
 async function saveAllScores() {
   const weekId = parseInt(document.getElementById('score-week').value);
+  const classId = document.getElementById('score-class').value;
   const rows = document.querySelectorAll('#score-inputs-container .score-input-row');
   if (!rows.length) return;
 
@@ -498,6 +521,10 @@ async function saveAllScores() {
     },
     body: JSON.stringify(upserts)
   });
+
+  // 저장 후 캐시 갱신
+  scoreCache[weekId] = {};
+  upserts.forEach(u => { scoreCache[weekId][u.student_id] = u; });
 
   showToast('✅ 점수가 저장됐어요!');
 }
