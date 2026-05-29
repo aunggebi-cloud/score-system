@@ -304,7 +304,8 @@
 
 <script>
 const SUPABASE_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0
+';
 
 let currentStudent = null;
 let currentWeeks = [];
@@ -313,7 +314,13 @@ let chartInstance = null;
 
 async function supaFetch(path) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}` }
+    cache: 'no-store',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
   });
   const text = await res.text();
   return text ? JSON.parse(text) : null;
@@ -473,7 +480,7 @@ async function loadScore(weekId) {
           <div class="notice-icon">⚠️</div>
           <div>
             <div class="notice-title">과제 미제출 안내</div>
-            <div class="notice-body">이번 과제가 제출되지 않았습니다.<br>주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 보충수업</strong>이 실시됩니다.</div>
+            <div class="notice-body">이번 과제가 제출되지 않았습니다.<br>주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 오전 11시 보충수업</strong>이 실시됩니다.</div>
           </div>
         </div>`;
     } else if (hwRate < 70) {
@@ -482,7 +489,7 @@ async function loadScore(weekId) {
           <div class="notice-icon">📋</div>
           <div>
             <div class="notice-title">과제 보충 안내</div>
-            <div class="notice-body">이번 과제 수행이 미흡합니다.<br>주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 보충수업</strong>이 실시됩니다.</div>
+            <div class="notice-body">이번 과제 수행이 미흡합니다.<br>주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 오전 11시 보충수업</strong>이 실시됩니다.</div>
           </div>
         </div>`;
     } else if (hwRate < 100) {
@@ -491,7 +498,7 @@ async function loadScore(weekId) {
           <div class="notice-icon">📝</div>
           <div>
             <div class="notice-title">과제 안내</div>
-            <div class="notice-body">빠진 부분은 주말까지 완료 후 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 보충수업</strong>이 실시됩니다.</div>
+            <div class="notice-body">빠진 부분은 주말까지 완료 후 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일 오전 11시 보충수업</strong>이 실시됩니다.</div>
           </div>
         </div>`;
     } else {
@@ -500,7 +507,7 @@ async function loadScore(weekId) {
           <div class="notice-icon">✅</div>
           <div>
             <div class="notice-title" style="color:var(--green)">과제 완료</div>
-            <div class="notice-body">이번 주 과제를 모두 완료했습니다.<br>보충수업은 과제 미인증 학생 대상으로 <strong>일요일</strong>에 실시됩니다.</div>
+            <div class="notice-body">이번 주 과제를 모두 완료했습니다.<br>보충수업은 과제 미인증 학생 대상으로 <strong>일요일 오전 11시</strong>에 실시됩니다.</div>
           </div>
         </div>`;
     }
