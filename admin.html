@@ -511,24 +511,53 @@ async function saveAllScores() {
   }));
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/scores?on_conflict=student_id,week_id`, {
-      method: 'POST',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': `Bearer ${ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal,resolution=merge-duplicates'
-      },
-      body: JSON.stringify(upserts)
-    });
+    // 기존 점수 조회
+    const existing = await api(`scores?week_id=eq.${weekId}&select=id,student_id`);
+    const existMap = {};
+    (existing || []).forEach(e => { existMap[e.student_id] = e.id; });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      showToast('❌ 저장 실패: ' + errText);
+    // 있으면 PATCH(수정), 없으면 POST(신규)
+    const results = await Promise.all(upserts.map(async u => {
+      if (existMap[u.student_id]) {
+        // 기존 데이터 수정
+        return fetch(`${SUPABASE_URL}/rest/v1/scores?id=eq.${existMap[u.student_id]}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            word_score: u.word_score,
+            reading_score: u.reading_score,
+            mc_score: u.mc_score,
+            homework_rate: u.homework_rate,
+            homework_eval: u.homework_eval
+          })
+        });
+      } else {
+        // 신규 데이터 입력
+        return fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+          method: 'POST',
+          headers: {
+            'apikey': ANON_KEY,
+            'Authorization': `Bearer ${ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(u)
+        });
+      }
+    }));
+
+    const failed = results.filter(r => !r.ok);
+    if (failed.length > 0) {
+      showToast(`❌ ${failed.length}건 저장 실패`);
       return;
     }
 
-    // 저장 성공 후 캐시 삭제 → 다음 불러오기 때 DB에서 새로 읽어옴
+    // 저장 성공 후 캐시 삭제
     delete scoreCache[weekId];
     showToast('✅ 점수가 저장됐어요!');
 
