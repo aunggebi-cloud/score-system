@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>용산대성N학원 [영어과] 점수 확인</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-light: #1a3060;
+    --gold: #c8a96e;
+    --gold-light: #e8c98e;
+    --cream: #f8f5f0;
+    --white: #ffffff;
+    --gray: #8a8a8a;
+    --light-gray: #f0ede8;
+    --red: #c0392b;
+    --green: #27ae60;
+    --shadow: 0 8px 32px rgba(15,31,61,0.12);
+    --shadow-lg: 0 20px 60px rgba(15,31,61,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 헤더 */
+  header {
+    width: 100%;
+    background: var(--navy);
+    padding: 28px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(200,169,110,0.08);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(200,169,110,0.06);
+  }
+  .header-sub {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+  header h1 span {
+    color: var(--gold);
+  }
+
+  /* 메인 컨테이너 */
+  .container {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 16px 60px;
+  }
+
+  /* 카드 */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    background: var(--navy);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .card-header h2 {
+    font-size: 13px;
+    color: var(--white);
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .card-body {
+    padding: 20px;
+  }
+
+  /* 폼 */
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e8e4df;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--navy);
+    background: var(--cream);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .form-group input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200,169,110,0.15);
+    background: var(--white);
+  }
+
+  /* 버튼 */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--light-gray);
+    color: var(--navy);
+    margin-top: 10px;
+  }
+  .btn-secondary:hover { background: #e8e4df; }
+
+  /* 에러 */
+  .error-msg {
+    display: none;
+    background: #fdf0ef;
+    border: 1px solid #f5c6c2;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 12px;
+    text-align: center;
+  }
+  .error-msg.show { display: block; }
+
+  /* 로딩 */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    color: var(--gray);
+    font-size: 13px;
+  }
+  .loading.show { display: block; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--light-gray);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 결과 화면 */
+  #result-section { display: none; }
+
+  .student-info {
+    background: var(--navy);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .student-info::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(200,169,110,0.1);
+  }
+  .student-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .student-class {
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  /* 주차 선택 */
+  .week-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .week-btn {
+    padding: 7px 14px;
+    border: 1.5px solid #e8e4df;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    color: var(--gray);
+    background: var(--white);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .week-btn:hover { border-color: var(--gold); color: var(--navy); }
+  .week-btn.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+  }
+
+  /* 점수 카드 */
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .score-item {
+    background: var(--light-gray);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .score-item.total {
+    grid-column: 1 / -1;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+  }
+  .score-label {
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .score-item.total .score-label { color: var(--gold); margin: 0; }
+  .score-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .score-item.total .score-value { color: var(--white); font-size: 28px; }
+  .score-max {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 400;
+  }
+  .score-item.total .score-max { color: rgba(255,255,255,0.5); font-size: 14px; }
+
+  /* 평균 + 석차 */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .meta-item {
+    background: var(--white);
+    border: 1.5px solid #e8e4df;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .meta-label {
+    font-size: 11px;
+    color: var(--gray);
+    margin-bottom: 4px;
+  }
+  .meta-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  /* 과제 */
+  .homework-card {
+    background: var(--white);
+    border: 1.5px solid #e8e4df;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .homework-label {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 500;
+  }
+  .homework-rate {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .homework-eval {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 2px;
+    text-align: right;
+  }
+
+  /* 빈 데이터 */
+  .empty-msg {
+    text-align: center;
+    padding: 30px;
+    color: var(--gray);
+    font-size: 13px;
+  }
+
+  /* 푸터 */
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="header-sub">Yongsan Daesung N Academy</p>
+  <h1>영어과 <span>점수 확인</span></h1>
+</header>
+
+<div class="container">
+
+  <!-- 로그인 섹션 -->
+  <div id="login-section">
+    <div class="card">
+      <div class="card-header">
+        <div class="dot"></div>
+        <h2>학생 로그인</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>학생 이름</label>
+          <input type="text" id="input-name" placeholder="이름을 입력하세요" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>학부모 연락처 뒷 4자리</label>
+          <input type="password" id="input-pin" placeholder="숫자 4자리" maxlength="4" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary" onclick="login()">점수 확인하기</button>
+        <div class="error-msg" id="error-msg">이름 또는 PIN이 올바르지 않습니다.</div>
+      </div>
+    </div>
+    <div class="loading" id="login-loading">
+      <div class="spinner"></div>
+      확인 중...
+    </div>
+  </div>
+
+  <!-- 결과 섹션 -->
+  <div id="result-section">
+    <div class="student-info">
+      <div class="student-name" id="result-name"></div>
+      <div class="student-class" id="result-class"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="dot"></div>
+        <h2>주차 선택</h2>
+      </div>
+      <div class="card-body">
+        <div class="week-selector" id="week-selector"></div>
+      </div>
+    </div>
+
+    <div id="score-content">
+      <div class="empty-msg">주차를 선택해주세요.</div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="logout()">← 다른 학생 조회</button>
+  </div>
+
+</div>
+
+<footer>© 용산대성N학원 영어과</footer>
+
+<script>
+  const SUPABASE_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co';
+  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0';
+
+  let currentStudent = null;
+  let currentWeeks = [];
+
+  async function supabase(path, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': `Bearer ${ANON_KEY}`,
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  async function login() {
+    const name = document.getElementById('input-name').value.trim();
+    const pin = document.getElementById('input-pin').value.trim();
+    const errorEl = document.getElementById('error-msg');
+    const loadingEl = document.getElementById('login-loading');
+
+    errorEl.classList.remove('show');
+    if (!name || !pin) { errorEl.textContent = '이름과 PIN을 모두 입력해주세요.'; errorEl.classList.add('show'); return; }
+
+    loadingEl.classList.add('show');
+
+    try {
+      const students = await supabase(`students?name=eq.${encodeURIComponent(name)}&pin=eq.${pin}&is_active=eq.true&select=*,classes(name)`);
+      if (!students || students.length === 0) {
+        errorEl.textContent = '이름 또는 PIN이 올바르지 않습니다.';
+        errorEl.classList.add('show');
+        return;
+      }
+      currentStudent = students[0];
+      await showResult();
+    } catch(e) {
+      errorEl.textContent = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      errorEl.classList.add('show');
+    } finally {
+      loadingEl.classList.remove('show');
+    }
+  }
+
+  async function showResult() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+    document.getElementById('result-name').textContent = currentStudent.name;
+    document.getElementById('result-class').textContent = currentStudent.classes?.name || '';
+
+    const weeks = await supabase(`weeks?class_id=eq.${currentStudent.class_id}&order=id.desc&select=*`);
+    currentWeeks = weeks || [];
+
+    const selector = document.getElementById('week-selector');
+    selector.innerHTML = '';
+    if (currentWeeks.length === 0) {
+      selector.innerHTML = '<span style="font-size:13px;color:#8a8a8a">등록된 주차가 없습니다.</span>';
+      return;
+    }
+    currentWeeks.forEach((w, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'week-btn' + (i === 0 ? ' active' : '');
+      btn.textContent = w.label || w.test_date;
+      btn.onclick = () => { document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadScore(w.id); };
+      selector.appendChild(btn);
+    });
+    if (currentWeeks.length > 0) loadScore(currentWeeks[0].id);
+  }
+
+  async function loadScore(weekId) {
+    const content = document.getElementById('score-content');
+    content.innerHTML = '<div class="loading show"><div class="spinner"></div>불러오는 중...</div>';
+
+    try {
+      const scores = await supabase(`scores?student_id=eq.${currentStudent.id}&week_id=eq.${weekId}&select=*`);
+      const avgs = await supabase(`week_averages?week_id=eq.${weekId}&select=*`);
+      const allScores = await supabase(`scores?week_id=eq.${weekId}&select=total_score`);
+
+      if (!scores || scores.length === 0) {
+        content.innerHTML = '<div class="empty-msg">해당 주차 점수가 아직 입력되지 않았습니다.</div>';
+        return;
+      }
+
+      const s = scores[0];
+      const avg = avgs && avgs.length > 0 ? avgs[0] : null;
+
+      // 석차 계산
+      let rank = '-', total_students = '-';
+      if (allScores) {
+        const sorted = allScores.map(x => x.total_score).filter(x => x !== null).sort((a,b) => b-a);
+        total_students = sorted.length;
+        rank = sorted.indexOf(s.total_score) + 1;
+      }
+
+      const hwColor = s.homework_rate >= 90 ? '#27ae60' : s.homework_rate >= 70 ? '#e67e22' : '#c0392b';
+
+      content.innerHTML = `
+        <div class="card">
+          <div class="card-header"><div class="dot"></div><h2>점수 결과</h2></div>
+          <div class="card-body">
+            <div class="score-grid">
+              <div class="score-item">
+                <div class="score-label">단어</div>
+                <div class="score-value">${s.word_score}<span class="score-max"> / 25</span></div>
+              </div>
+              <div class="score-item">
+                <div class="score-label">해석</div>
+                <div class="score-value">${s.reading_score}<span class="score-max"> / 30</span></div>
+              </div>
+              <div class="score-item">
+                <div class="score-label">객관식</div>
+                <div class="score-value">${s.mc_score}<span class="score-max"> / 45</span></div>
+              </div>
+              <div class="score-item total">
+                <div class="score-label">총점</div>
+                <div><span class="score-value">${s.total_score}</span><span class="score-max"> / 100</span></div>
+              </div>
+            </div>
+            <div class="meta-grid">
+              <div class="meta-item">
+                <div class="meta-label">반 평균</div>
+                <div class="meta-value">${avg ? avg.avg_total : '-'}점</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">석차</div>
+                <div class="meta-value">${rank}등 / ${total_students}명</div>
+              </div>
+            </div>
+            <div class="homework-card">
+              <div>
+                <div class="homework-label">과제 수행률</div>
+              </div>
+              <div style="text-align:right">
+                <div class="homework-rate" style="color:${hwColor}">${s.homework_rate}%</div>
+                ${s.homework_eval ? `<div class="homework-eval">${s.homework_eval}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    } catch(e) {
+      content.innerHTML = '<div class="empty-msg">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+    }
+  }
+
+  function logout() {
+    currentStudent = null;
+    document.getElementById('result-section').style.display = 'none';
+    document.getElementById('login-section').style.display = 'block';
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-pin').value = '';
+    document.getElementById('error-msg').classList.remove('show');
+  }
+
+  document.getElementById('input-pin').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('input-pin').focus(); });
+</script>
+</body>
+</html>
