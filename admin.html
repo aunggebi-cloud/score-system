@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 페이지 — 용산대성N학원 영어과</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-light: #1a3060;
+    --gold: #c8a96e;
+    --cream: #f8f5f0;
+    --white: #ffffff;
+    --gray: #8a8a8a;
+    --light-gray: #f0ede8;
+    --border: #e8e4df;
+    --red: #c0392b;
+    --red-light: #fdf0ef;
+    --green: #27ae60;
+    --green-light: #eafaf1;
+    --shadow: 0 4px 20px rgba(15,31,61,0.1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans KR',sans-serif; background:var(--cream); min-height:100vh; }
+
+  /* 로그인 */
+  #login-screen {
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .login-box {
+    background:var(--white); border-radius:20px; box-shadow:var(--shadow);
+    padding:40px 32px; width:100%; max-width:360px; text-align:center;
+  }
+  .login-box h1 { font-size:18px; color:var(--navy); font-weight:700; margin-bottom:6px; }
+  .login-box p { font-size:12px; color:var(--gray); margin-bottom:28px; }
+  .login-box input {
+    width:100%; padding:13px 16px; border:1.5px solid var(--border); border-radius:10px;
+    font-size:15px; font-family:'Noto Sans KR',sans-serif; color:var(--navy);
+    background:var(--cream); outline:none; margin-bottom:12px;
+    transition:border-color 0.2s;
+  }
+  .login-box input:focus { border-color:var(--gold); background:var(--white); }
+
+  /* 공통 버튼 */
+  .btn {
+    padding:11px 18px; border:none; border-radius:8px; font-size:13px;
+    font-weight:600; font-family:'Noto Sans KR',sans-serif; cursor:pointer;
+    transition:all 0.15s; white-space:nowrap;
+  }
+  .btn-primary { background:var(--navy); color:var(--white); }
+  .btn-primary:hover { background:var(--navy-light); }
+  .btn-gold { background:var(--gold); color:var(--white); }
+  .btn-gold:hover { background:#b8996e; }
+  .btn-danger { background:var(--red-light); color:var(--red); border:1px solid #f5c6c2; }
+  .btn-danger:hover { background:#fae0de; }
+  .btn-sm { padding:7px 12px; font-size:12px; }
+  .btn-full { width:100%; }
+
+  /* 메인 레이아웃 */
+  #admin-screen { display:none; }
+  .top-bar {
+    background:var(--navy); padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .top-bar h1 { font-size:15px; color:var(--white); font-weight:600; }
+  .top-bar span { font-size:11px; color:var(--gold); }
+
+  .tab-bar {
+    background:var(--white); border-bottom:1px solid var(--border);
+    display:flex; overflow-x:auto; gap:0;
+  }
+  .tab-btn {
+    padding:13px 18px; font-size:13px; font-weight:500; color:var(--gray);
+    background:none; border:none; border-bottom:2px solid transparent;
+    cursor:pointer; white-space:nowrap; font-family:'Noto Sans KR',sans-serif;
+    transition:all 0.15s;
+  }
+  .tab-btn.active { color:var(--navy); border-bottom-color:var(--gold); font-weight:700; }
+
+  .tab-content { display:none; padding:16px; max-width:700px; margin:0 auto; }
+  .tab-content.active { display:block; }
+
+  /* 섹션 카드 */
+  .section-card {
+    background:var(--white); border-radius:14px; box-shadow:var(--shadow);
+    margin-bottom:16px; overflow:hidden;
+  }
+  .section-head {
+    padding:14px 18px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .section-head h3 { font-size:14px; font-weight:700; color:var(--navy); }
+  .section-body { padding:16px 18px; }
+
+  /* 폼 그룹 */
+  .form-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .form-group { flex:1; min-width:120px; }
+  .form-group label { display:block; font-size:11px; color:var(--gray); font-weight:500; margin-bottom:5px; letter-spacing:0.5px; }
+  .form-group input, .form-group select {
+    width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px;
+    font-size:14px; font-family:'Noto Sans KR',sans-serif; color:var(--navy);
+    background:var(--cream); outline:none; transition:border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color:var(--gold); background:var(--white); }
+
+  /* 알림 메시지 */
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--navy); color:var(--white); padding:12px 24px;
+    border-radius:24px; font-size:13px; font-weight:500;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2); z-index:999;
+    opacity:0; transition:opacity 0.3s; pointer-events:none;
+  }
+  .toast.show { opacity:1; }
+
+  /* 테이블 */
+  .data-table { width:100%; border-collapse:collapse; }
+  .data-table th {
+    font-size:11px; font-weight:600; color:var(--gray);
+    padding:8px 10px; border-bottom:1px solid var(--border);
+    text-align:left; letter-spacing:0.5px;
+  }
+  .data-table td {
+    font-size:13px; color:var(--navy); padding:10px; border-bottom:1px solid var(--light-gray);
+    vertical-align:middle;
+  }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table tr:hover td { background:var(--cream); }
+
+  /* 배지 */
+  .badge {
+    display:inline-block; padding:3px 8px; border-radius:12px;
+    font-size:11px; font-weight:600;
+  }
+  .badge-active { background:var(--green-light); color:var(--green); }
+  .badge-inactive { background:var(--red-light); color:var(--red); }
+
+  /* 점수 입력 그리드 */
+  .score-input-row {
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px;
+    gap:8px; align-items:center; padding:8px 0;
+    border-bottom:1px solid var(--light-gray);
+  }
+  .score-input-row:last-child { border-bottom:none; }
+  .score-input-row .student-name { font-size:13px; font-weight:500; color:var(--navy); }
+  .score-input-row input {
+    padding:8px; border:1.5px solid var(--border); border-radius:6px;
+    font-size:13px; font-family:'Noto Sans KR',sans-serif; color:var(--navy);
+    text-align:center; outline:none; width:100%;
+    transition:border-color 0.2s;
+  }
+  .score-input-row input:focus { border-color:var(--gold); background:var(--white); }
+  .score-header {
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px;
+    gap:8px; padding:8px 0 4px;
+    font-size:11px; color:var(--gray); font-weight:600; letter-spacing:0.5px;
+    border-bottom:2px solid var(--border); margin-bottom:4px;
+  }
+
+  /* 로딩 */
+  .mini-loading { text-align:center; padding:20px; color:var(--gray); font-size:13px; }
+  .spinner-sm {
+    width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--gold);
+    border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block;
+    vertical-align:middle; margin-right:8px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* 반응형 */
+  @media(max-width:480px) {
+    .score-input-row, .score-header { grid-template-columns:1fr 60px 60px 60px 60px 90px; gap:4px; }
+    .score-input-row input { padding:6px 4px; font-size:12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>관리자 로그인</h1>
+    <p>용산대성N학원 영어과 선생님 전용</p>
+    <input type="password" id="admin-pw" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="btn btn-primary btn-full" onclick="adminLogin()">로그인</button>
+    <p id="login-err" style="color:var(--red);font-size:12px;margin-top:10px;display:none">비밀번호가 올바르지 않습니다.</p>
+  </div>
+</div>
+
+<!-- 관리자 화면 -->
+<div id="admin-screen">
+  <div class="top-bar">
+    <h1>📋 관리자 페이지</h1>
+    <span onclick="location.reload()" style="cursor:pointer">로그아웃</span>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('tab-score')">점수 입력</button>
+    <button class="tab-btn" onclick="switchTab('tab-week')">주차 관리</button>
+    <button class="tab-btn" onclick="switchTab('tab-student')">학생 관리</button>
+  </div>
+
+  <!-- 탭1: 점수 입력 -->
+  <div id="tab-score" class="tab-content active">
+    <div class="section-card">
+      <div class="section-head"><h3>반 · 주차 선택</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>반 선택</label>
+            <select id="score-class" onchange="loadWeeksForScore()">
+              <option value="">반을 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>주차 선택</label>
+            <select id="score-week">
+              <option value="">주차를 선택하세요</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="loadScoreInputs()">불러오기</button>
+      </div>
+    </div>
+
+    <div class="section-card" id="score-input-card" style="display:none">
+      <div class="section-head">
+        <h3 id="score-input-title">점수 입력</h3>
+        <button class="btn btn-primary btn-sm" onclick="saveAllScores()">전체 저장</button>
+      </div>
+      <div class="section-body" style="overflow-x:auto">
+        <div class="score-header">
+          <span>이름</span><span style="text-align:center">단어<br><small style="font-weight:400">/25</small></span>
+          <span style="text-align:center">해석<br><small style="font-weight:400">/30</small></span>
+          <span style="text-align:center">객관식<br><small style="font-weight:400">/45</small></span>
+          <span style="text-align:center">과제<br><small style="font-weight:400">%</small></span>
+          <span style="text-align:center">과제평가</span>
+        </div>
+        <div id="score-inputs-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭2: 주차 관리 -->
+  <div id="tab-week" class="tab-content">
+    <div class="section-card">
+      <div class="section-head"><h3>새 주차 추가</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>반 선택</label>
+            <select id="week-class">
+              <option value="">반을 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>수업 날짜</label>
+            <input type="text" id="week-date" placeholder="예: 6.3">
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="addWeek()">주차 추가</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><h3>주차 목록</h3></div>
+      <div class="section-body">
+        <div class="form-group" style="margin-bottom:12px">
+          <label>반 선택</label>
+          <select id="week-list-class" onchange="loadWeekList()">
+            <option value="">반을 선택하세요</option>
+          </select>
+        </div>
+        <div id="week-list"><p style="font-size:13px;color:var(--gray)">반을 선택하면 주차 목록이 표시됩니다.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭3: 학생 관리 -->
+  <div id="tab-student" class="tab-content">
+    <div class="section-card">
+      <div class="section-head"><h3>학생 추가</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>이름</label>
+            <input type="text" id="new-name" placeholder="학생 이름">
+          </div>
+          <div class="form-group">
+            <label>PIN (연락처 뒷 4자리)</label>
+            <input type="text" id="new-pin" placeholder="4자리 숫자" maxlength="4">
+          </div>
+          <div class="form-group">
+            <label>반</label>
+            <select id="new-class">
+              <option value="">반 선택</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="addStudent()">학생 추가</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><h3>학생 목록</h3></div>
+      <div class="section-body">
+        <div class="form-group" style="margin-bottom:12px">
+          <label>반 선택</label>
+          <select id="student-list-class" onchange="loadStudentList()">
+            <option value="">반을 선택하세요</option>
+          </select>
+        </div>
+        <div id="student-list"><p style="font-size:13px;color:var(--gray)">반을 선택하면 학생 목록이 표시됩니다.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0';
+const ADMIN_PASSWORD = 'Heemang1!2@';
+
+// ── API 헬퍼 ──────────────────────────────────────────
+async function api(path, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method==='POST' ? 'return=representation' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+function showToast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── 로그인 ────────────────────────────────────────────
+function adminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+// ── 초기화 ────────────────────────────────────────────
+let classes = [];
+async function initAdmin() {
+  classes = await api('classes?order=id.asc&select=*') || [];
+  ['score-class','week-class','week-list-class','new-class','student-list-class'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">반을 선택하세요</option>';
+    classes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id; opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── 주차 관리 ─────────────────────────────────────────
+async function addWeek() {
+  const classId = document.getElementById('week-class').value;
+  const date = document.getElementById('week-date').value.trim();
+  if (!classId || !date) { showToast('반과 날짜를 입력해주세요.'); return; }
+
+  const className = classes.find(c => c.id == classId)?.name || '';
+  await api('weeks', 'POST', { class_id: parseInt(classId), test_date: date, label: date });
+  showToast(`✅ ${className} — ${date} 주차가 추가됐어요.`);
+  document.getElementById('week-date').value = '';
+
+  if (document.getElementById('week-list-class').value == classId) loadWeekList();
+}
+
+async function loadWeekList() {
+  const classId = document.getElementById('week-list-class').value;
+  const container = document.getElementById('week-list');
+  if (!classId) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">반을 선택하면 주차 목록이 표시됩니다.</p>'; return; }
+
+  container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
+  const weeks = await api(`weeks?class_id=eq.${classId}&order=id.desc&select=*`) || [];
+
+  if (!weeks.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 주차가 없습니다.</p>'; return; }
+
+  container.innerHTML = `<table class="data-table">
+    <thead><tr><th>날짜</th><th>등록일</th><th></th></tr></thead>
+    <tbody>${weeks.map(w => `
+      <tr>
+        <td><strong>${w.label || w.test_date}</strong></td>
+        <td style="color:var(--gray);font-size:12px">${w.created_at?.slice(0,10) || ''}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteWeek(${w.id})">삭제</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function deleteWeek(id) {
+  if (!confirm('이 주차를 삭제하면 해당 주차의 모든 점수도 삭제됩니다. 계속할까요?')) return;
+  await api(`scores?week_id=eq.${id}`, 'DELETE');
+  await api(`weeks?id=eq.${id}`, 'DELETE');
+  showToast('🗑 주차가 삭제됐어요.');
+  loadWeekList();
+}
+
+// ── 점수 입력 ─────────────────────────────────────────
+async function loadWeeksForScore() {
+  const classId = document.getElementById('score-class').value;
+  const sel = document.getElementById('score-week');
+  sel.innerHTML = '<option value="">주차를 선택하세요</option>';
+  if (!classId) return;
+
+  const weeks = await api(`weeks?class_id=eq.${classId}&order=id.desc&select=*`) || [];
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.id; opt.textContent = w.label || w.test_date;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadScoreInputs() {
+  const classId = document.getElementById('score-class').value;
+  const weekId = document.getElementById('score-week').value;
+  if (!classId || !weekId) { showToast('반과 주차를 선택해주세요.'); return; }
+
+  const card = document.getElementById('score-input-card');
+  const container = document.getElementById('score-inputs-container');
+  card.style.display = 'block';
+  container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
+
+  const [students, scores] = await Promise.all([
+    api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`),
+    api(`scores?week_id=eq.${weekId}&select=*`)
+  ]);
+
+  const className = classes.find(c => c.id == classId)?.name || '';
+  const weekSel = document.getElementById('score-week');
+  const weekLabel = weekSel.options[weekSel.selectedIndex]?.text || '';
+  document.getElementById('score-input-title').textContent = `${className} — ${weekLabel}`;
+
+  const scoreMap = {};
+  (scores || []).forEach(s => { scoreMap[s.student_id] = s; });
+
+  container.innerHTML = (students || []).map(st => {
+    const sc = scoreMap[st.id] || {};
+    return `<div class="score-input-row" data-student-id="${st.id}">
+      <span class="student-name">${st.name}</span>
+      <input type="number" class="inp-word" value="${sc.word_score ?? ''}" min="0" max="25" placeholder="0">
+      <input type="number" class="inp-reading" value="${sc.reading_score ?? ''}" min="0" max="30" placeholder="0">
+      <input type="number" class="inp-mc" value="${sc.mc_score ?? ''}" min="0" max="45" placeholder="0">
+      <input type="number" class="inp-hw" value="${sc.homework_rate ?? ''}" min="0" max="100" placeholder="0">
+      <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="평가 메모">
+    </div>`;
+  }).join('');
+}
+
+async function saveAllScores() {
+  const weekId = parseInt(document.getElementById('score-week').value);
+  const rows = document.querySelectorAll('#score-inputs-container .score-input-row');
+  if (!rows.length) return;
+
+  const upserts = Array.from(rows).map(row => ({
+    student_id: parseInt(row.dataset.studentId),
+    week_id: weekId,
+    word_score: parseFloat(row.querySelector('.inp-word').value) || 0,
+    reading_score: parseFloat(row.querySelector('.inp-reading').value) || 0,
+    mc_score: parseFloat(row.querySelector('.inp-mc').value) || 0,
+    homework_rate: parseInt(row.querySelector('.inp-hw').value) || 0,
+    homework_eval: row.querySelector('.inp-eval').value.trim()
+  }));
+
+  await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+    method: 'POST',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: JSON.stringify(upserts)
+  });
+
+  showToast('✅ 점수가 저장됐어요!');
+}
+
+// ── 학생 관리 ─────────────────────────────────────────
+async function addStudent() {
+  const name = document.getElementById('new-name').value.trim();
+  const pin = document.getElementById('new-pin').value.trim();
+  const classId = document.getElementById('new-class').value;
+  if (!name || !pin || !classId) { showToast('이름, PIN, 반을 모두 입력해주세요.'); return; }
+
+  await api('students', 'POST', { name, pin, class_id: parseInt(classId), is_active: true });
+  showToast(`✅ ${name} 학생이 추가됐어요.`);
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-pin').value = '';
+
+  if (document.getElementById('student-list-class').value == classId) loadStudentList();
+}
+
+async function loadStudentList() {
+  const classId = document.getElementById('student-list-class').value;
+  const container = document.getElementById('student-list');
+  if (!classId) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">반을 선택하면 학생 목록이 표시됩니다.</p>'; return; }
+
+  container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
+  const students = await api(`students?class_id=eq.${classId}&order=id.asc&select=*`) || [];
+
+  if (!students.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 학생이 없습니다.</p>'; return; }
+
+  container.innerHTML = `<table class="data-table">
+    <thead><tr><th>이름</th><th>PIN</th><th>상태</th><th></th></tr></thead>
+    <tbody>${students.map(s => `
+      <tr>
+        <td><strong>${s.name}</strong></td>
+        <td style="font-family:monospace">${s.pin || '-'}</td>
+        <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? '재원' : '퇴원'}</span></td>
+        <td style="display:flex;gap:6px">
+          ${s.is_active
+            ? `<button class="btn btn-danger btn-sm" onclick="toggleStudent(${s.id}, false)">퇴원</button>`
+            : `<button class="btn btn-sm" style="background:var(--green-light);color:var(--green);border:1px solid #b7efd1" onclick="toggleStudent(${s.id}, true)">복귀</button>`
+          }
+          <button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id},'${s.name}')">삭제</button>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function toggleStudent(id, active) {
+  await api(`students?id=eq.${id}`, 'PATCH', { is_active: active });
+  showToast(active ? '✅ 복귀 처리됐어요.' : '퇴원 처리됐어요.');
+  loadStudentList();
+}
+
+async function deleteStudent(id, name) {
+  if (!confirm(`${name} 학생을 완전히 삭제할까요?\n점수 기록도 함께 삭제됩니다.`)) return;
+  await api(`scores?student_id=eq.${id}`, 'DELETE');
+  await api(`students?id=eq.${id}`, 'DELETE');
+  showToast(`🗑 ${name} 학생이 삭제됐어요.`);
+  loadStudentList();
+}
+</script>
+</body>
+</html>
