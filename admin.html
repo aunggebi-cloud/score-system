@@ -408,11 +408,12 @@
           <div class="form-group">
             <label>과제 수행률 기준</label>
             <select id="sms-threshold" onchange="loadSmsTargets()">
-              <option value="100">전체 (100% 이하)</option>
-              <option value="99">미완료 (99% 이하)</option>
-              <option value="70" selected>70% 이하</option>
-              <option value="0">0% 이하</option>
-              <option value="-1">미기재 (점수 미입력)</option>
+              <option value="all">전체</option>
+              <option value="empty">미기재</option>
+              <option value="0">0%</option>
+              <option value="1-70" selected>1~70%</option>
+              <option value="71-99">71~99%</option>
+              <option value="100">100%</option>
             </select>
           </div>
         </div>
@@ -713,7 +714,7 @@ async function loadSmsWeeks() {
 async function loadSmsTargets() {
   const classId = document.getElementById('sms-class').value;
   const weekId = document.getElementById('sms-week').value;
-  const threshold = parseInt(document.getElementById('sms-threshold').value);
+  const threshold = document.getElementById('sms-threshold').value;
   if (!classId || !weekId) { showToast('반과 주차를 선택해주세요.'); return; }
 
   const [students, scores] = await Promise.all([
@@ -726,17 +727,24 @@ async function loadSmsTargets() {
 
   const targets = (students || []).filter(st => {
     const sc = scoreMap[st.id];
-    if (threshold === -1) return !sc; // 미기재만
-    const hw = sc ? sc.homework_rate : 0;
-    return hw <= threshold;
+    const hw = sc ? sc.homework_rate : null;
+    const isEmpty = !sc || hw === null;
+    if (threshold === 'all') return true;
+    if (threshold === 'empty') return isEmpty;
+    if (threshold === '0') return !isEmpty && hw === 0;
+    if (threshold === '1-70') return !isEmpty && hw >= 1 && hw <= 70;
+    if (threshold === '71-99') return !isEmpty && hw >= 71 && hw <= 99;
+    if (threshold === '100') return !isEmpty && hw === 100;
+    return false;
   }).map(st => {
     const sc = scoreMap[st.id];
+    const hw = sc ? sc.homework_rate : null;
     return {
       id: st.id,
       name: st.name,
       phone: st.phone || '',
-      hw: sc ? sc.homework_rate : 0,
-      isEmpty: !sc
+      hw: hw,
+      isEmpty: !sc || hw === null
     };
   });
 
