@@ -138,7 +138,7 @@
 
   /* 점수 입력 그리드 */
   .score-input-row {
-    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px;
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px 60px 120px;
     gap:8px; align-items:center; padding:8px 0;
     border-bottom:1px solid var(--light-gray);
   }
@@ -152,7 +152,7 @@
   }
   .score-input-row input:focus { border-color:var(--gold); background:var(--white); }
   .score-header {
-    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px;
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px 60px 120px;
     gap:8px; padding:8px 0 4px;
     font-size:11px; color:var(--gray); font-weight:600; letter-spacing:0.5px;
     border-bottom:2px solid var(--border); margin-bottom:4px;
@@ -169,7 +169,7 @@
 
   /* 반응형 */
   @media(max-width:480px) {
-    .score-input-row, .score-header { grid-template-columns:1fr 60px 60px 60px 60px 90px; gap:4px; }
+    .score-input-row, .score-header { grid-template-columns:1fr 60px 60px 60px 60px 90px 50px 90px; gap:4px; }
     .score-input-row input { padding:6px 4px; font-size:12px; }
   }
 </style>
@@ -197,6 +197,7 @@
     <button class="tab-btn active" onclick="switchTab('tab-score')">점수 입력</button>
     <button class="tab-btn" onclick="switchTab('tab-week')">주차 관리</button>
     <button class="tab-btn" onclick="switchTab('tab-student')">학생 관리</button>
+    <button class="tab-btn" onclick="switchTab('tab-mock')">모의고사</button>
   </div>
 
   <!-- 탭1: 점수 입력 -->
@@ -233,6 +234,8 @@
           <span style="text-align:center">객관식<br><small style="font-weight:400">/45</small></span>
           <span style="text-align:center">과제<br><small style="font-weight:400">%</small></span>
           <span style="text-align:center">과제평가</span>
+          <span style="text-align:center">출석</span>
+          <span style="text-align:center">특이사항</span>
         </div>
         <div id="score-inputs-container"></div>
       </div>
@@ -314,12 +317,84 @@
   </div>
 </div>
 
+  <!-- 탭4: 모의고사 -->
+  <div id="tab-mock" class="tab-content">
+    <div class="section-card">
+      <div class="section-head"><h3>모의고사 추가</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>반 선택</label>
+            <select id="mock-class">
+              <option value="">반을 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>시험 날짜</label>
+            <input type="text" id="mock-date" placeholder="예: 6.10">
+          </div>
+          <div class="form-group">
+            <label>시험명 (선택)</label>
+            <input type="text" id="mock-label" placeholder="예: 6월 모의고사">
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="addMockExam()">모의고사 추가</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><h3>모의고사 점수 입력</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>반 선택</label>
+            <select id="mock-score-class" onchange="loadMockExams()">
+              <option value="">반을 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>모의고사 선택</label>
+            <select id="mock-score-exam" onchange="loadMockScoreInputs()">
+              <option value="">모의고사를 선택하세요</option>
+            </select>
+          </div>
+        </div>
+        <div id="mock-score-card" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 100px 100px 100px 150px;gap:8px;padding:8px 0 4px;font-size:11px;color:var(--gray);font-weight:600;border-bottom:2px solid var(--border);margin-bottom:4px;">
+            <span>이름</span>
+            <span style="text-align:center">객관식<br><small>/100</small></span>
+            <span style="text-align:center">서술형<br><small>/100</small></span>
+            <span style="text-align:center">합계</span>
+            <span style="text-align:center">메모</span>
+          </div>
+          <div id="mock-score-inputs"></div>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="saveMockScores()">전체 저장</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head"><h3>모의고사 목록</h3></div>
+      <div class="section-body">
+        <div class="form-group" style="margin-bottom:12px">
+          <label>반 선택</label>
+          <select id="mock-list-class" onchange="loadMockList()">
+            <option value="">반을 선택하세요</option>
+          </select>
+        </div>
+        <div id="mock-list"><p style="font-size:13px;color:var(--gray)">반을 선택하면 목록이 표시됩니다.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co';
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcHppbnNkb2NtcG5meGtmYmlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzM2NzksImV4cCI6MjA5NTYwOTY3OX0.f_HsTsM4_z2qKeMtIXZ0G8vRuXFmHkXomIdQzFFXHb0';
-const ADMIN_PASSWORD = '1357';
+const ADMIN_PASSWORD = 'YOUR_ADMIN_PASSWORD';
 
 // ── API 헬퍼 ──────────────────────────────────────────
 async function api(path, method='GET', body=null) {
@@ -360,7 +435,7 @@ function adminLogin() {
 let classes = [];
 async function initAdmin() {
   classes = await api('classes?order=id.asc&select=*') || [];
-  ['score-class','week-class','week-list-class','new-class','student-list-class'].forEach(id => {
+  ['score-class','week-class','week-list-class','new-class','student-list-class','mock-class','mock-score-class','mock-list-class'].forEach(id => {
     const sel = document.getElementById(id);
     sel.innerHTML = '<option value="">반을 선택하세요</option>';
     classes.forEach(c => {
@@ -490,6 +565,8 @@ function renderScoreInputs(classId, weekId, scoreMap) {
       <input type="number" class="inp-mc" value="${sc.mc_score ?? ''}" min="0" max="45" placeholder="0">
       <input type="number" class="inp-hw" value="${sc.homework_rate ?? ''}" min="0" max="100" placeholder="0">
       <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="평가 메모">
+      <input type="checkbox" class="inp-attend" ${sc.attendance === false ? '' : 'checked'} title="출석">
+      <input type="text" class="inp-note" value="${sc.note ?? ''}" placeholder="특이사항">
     </div>`;
   }).join('');
 }
@@ -507,7 +584,9 @@ async function saveAllScores() {
     reading_score: parseFloat(row.querySelector('.inp-reading').value) || 0,
     mc_score: parseFloat(row.querySelector('.inp-mc').value) || 0,
     homework_rate: parseInt(row.querySelector('.inp-hw').value) || 0,
-    homework_eval: row.querySelector('.inp-eval').value.trim()
+    homework_eval: row.querySelector('.inp-eval').value.trim(),
+    attendance: row.querySelector('.inp-attend').checked,
+    note: row.querySelector('.inp-note').value.trim()
   }));
 
   try {
@@ -533,7 +612,9 @@ async function saveAllScores() {
             reading_score: u.reading_score,
             mc_score: u.mc_score,
             homework_rate: u.homework_rate,
-            homework_eval: u.homework_eval
+            homework_eval: u.homework_eval,
+            attendance: u.attendance,
+            note: u.note
           })
         });
       } else {
@@ -564,6 +645,155 @@ async function saveAllScores() {
   } catch(e) {
     showToast('❌ 오류 발생: ' + e.message);
   }
+}
+
+// ── 모의고사 관리 ────────────────────────────────────────
+const mockScoreCache = {};
+
+async function addMockExam() {
+  const classId = document.getElementById('mock-class').value;
+  const date = document.getElementById('mock-date').value.trim();
+  const label = document.getElementById('mock-label').value.trim();
+  if (!classId || !date) { showToast('반과 날짜를 입력해주세요.'); return; }
+
+  await api('mock_exams', 'POST', {
+    class_id: parseInt(classId),
+    exam_date: date,
+    label: label || date
+  });
+  showToast('✅ 모의고사가 추가됐어요.');
+  document.getElementById('mock-date').value = '';
+  document.getElementById('mock-label').value = '';
+  if (document.getElementById('mock-list-class').value == classId) loadMockList();
+}
+
+async function loadMockExams() {
+  const classId = document.getElementById('mock-score-class').value;
+  const sel = document.getElementById('mock-score-exam');
+  sel.innerHTML = '<option value="">모의고사를 선택하세요</option>';
+  document.getElementById('mock-score-card').style.display = 'none';
+  if (!classId) return;
+  const exams = await api(`mock_exams?class_id=eq.${classId}&order=id.desc&select=*`) || [];
+  exams.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id; opt.textContent = e.label || e.exam_date;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadMockScoreInputs() {
+  const classId = document.getElementById('mock-score-class').value;
+  const examId = document.getElementById('mock-score-exam').value;
+  if (!classId || !examId) return;
+
+  const card = document.getElementById('mock-score-card');
+  const container = document.getElementById('mock-score-inputs');
+  card.style.display = 'block';
+
+  if (mockScoreCache[examId]) {
+    renderMockInputs(classId, examId, mockScoreCache[examId]);
+    return;
+  }
+
+  container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
+
+  if (!studentCache[classId]) {
+    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`) || [];
+  }
+  const scores = await api(`mock_scores?exam_id=eq.${examId}&select=*`) || [];
+  mockScoreCache[examId] = {};
+  scores.forEach(s => { mockScoreCache[examId][s.student_id] = s; });
+  renderMockInputs(classId, examId, mockScoreCache[examId]);
+}
+
+function renderMockInputs(classId, examId, scoreMap) {
+  const container = document.getElementById('mock-score-inputs');
+  const students = studentCache[classId] || [];
+  container.innerHTML = students.map(st => {
+    const sc = scoreMap[st.id] || {};
+    const total = (sc.multiple_score ?? 0) + (sc.essay_score ?? 0);
+    return `<div style="display:grid;grid-template-columns:1fr 100px 100px 100px 150px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--light-gray)" data-student-id="${st.id}">
+      <span style="font-size:13px;font-weight:500">${st.name}</span>
+      <input type="number" class="mock-multiple" value="${sc.multiple_score ?? ''}" min="0" max="100" placeholder="0" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;outline:none;width:100%">
+      <input type="number" class="mock-essay" value="${sc.essay_score ?? ''}" min="0" max="100" placeholder="0" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;outline:none;width:100%">
+      <span style="font-size:14px;font-weight:700;text-align:center;color:var(--navy)">${sc.multiple_score != null ? total : '-'}</span>
+      <input type="text" class="mock-memo" value="${sc.memo ?? ''}" placeholder="메모" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;width:100%">
+    </div>`;
+  }).join('');
+}
+
+async function saveMockScores() {
+  const examId = parseInt(document.getElementById('mock-score-exam').value);
+  const classId = document.getElementById('mock-score-class').value;
+  const rows = document.querySelectorAll('#mock-score-inputs [data-student-id]');
+  if (!rows.length) return;
+
+  const existing = await api(`mock_scores?exam_id=eq.${examId}&select=id,student_id`) || [];
+  const existMap = {};
+  existing.forEach(e => { existMap[e.student_id] = e.id; });
+
+  const upserts = Array.from(rows).map(row => ({
+    student_id: parseInt(row.dataset.studentId),
+    exam_id: examId,
+    multiple_score: parseFloat(row.querySelector('.mock-multiple').value) || 0,
+    essay_score: parseFloat(row.querySelector('.mock-essay').value) || 0,
+    memo: row.querySelector('.mock-memo').value.trim()
+  }));
+
+  try {
+    const results = await Promise.all(upserts.map(async u => {
+      if (existMap[u.student_id]) {
+        return fetch(`${SUPABASE_URL}/rest/v1/mock_scores?id=eq.${existMap[u.student_id]}`, {
+          method: 'PATCH',
+          headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ multiple_score: u.multiple_score, essay_score: u.essay_score, memo: u.memo })
+        });
+      } else {
+        return fetch(`${SUPABASE_URL}/rest/v1/mock_scores`, {
+          method: 'POST',
+          headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify(u)
+        });
+      }
+    }));
+
+    const failed = results.filter(r => !r.ok);
+    if (failed.length > 0) { showToast(`❌ ${failed.length}건 저장 실패`); return; }
+
+    delete mockScoreCache[examId];
+    showToast('✅ 모의고사 점수가 저장됐어요!');
+  } catch(e) {
+    showToast('❌ 오류 발생: ' + e.message);
+  }
+}
+
+async function loadMockList() {
+  const classId = document.getElementById('mock-list-class').value;
+  const container = document.getElementById('mock-list');
+  if (!classId) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">반을 선택하면 목록이 표시됩니다.</p>'; return; }
+
+  container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
+  const exams = await api(`mock_exams?class_id=eq.${classId}&order=id.desc&select=*`) || [];
+
+  if (!exams.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 모의고사가 없습니다.</p>'; return; }
+
+  container.innerHTML = `<table class="data-table">
+    <thead><tr><th>시험명</th><th>날짜</th><th></th></tr></thead>
+    <tbody>${exams.map(e => `
+      <tr>
+        <td><strong>${e.label || e.exam_date}</strong></td>
+        <td style="color:var(--gray);font-size:12px">${e.exam_date}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteMockExam(${e.id})">삭제</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function deleteMockExam(id) {
+  if (!confirm('이 모의고사를 삭제하면 모든 점수도 삭제됩니다. 계속할까요?')) return;
+  await api(`mock_scores?exam_id=eq.${id}`, 'DELETE');
+  await api(`mock_exams?id=eq.${id}`, 'DELETE');
+  showToast('🗑 모의고사가 삭제됐어요.');
+  loadMockList();
 }
 
 // ── 학생 관리 ─────────────────────────────────────────
