@@ -389,6 +389,10 @@ async function showResult() {
       btn.classList.add('active');
       document.getElementById('score-content').style.display = 'block';
       document.getElementById('mock-score-section').style.display = 'none';
+      if (allScores.length > 0) {
+        document.getElementById('summary-grid').style.display = 'grid';
+        document.getElementById('chart-card').style.display = 'block';
+      }
       loadScore(w.id);
     };
     selector.appendChild(btn);
