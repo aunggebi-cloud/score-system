@@ -630,7 +630,7 @@ async function saveAllScores() {
     word_score: parseFloat(row.querySelector('.inp-word').value) || 0,
     reading_score: parseFloat(row.querySelector('.inp-reading').value) || 0,
     mc_score: parseFloat(row.querySelector('.inp-mc').value) || 0,
-    homework_rate: parseInt(row.querySelector('.inp-hw').value) || 0,
+    homework_rate: row.querySelector('.inp-hw').value !== '' ? parseInt(row.querySelector('.inp-hw').value) : null,
     homework_eval: row.querySelector('.inp-eval').value.trim(),
     attendance: row.querySelector('.inp-attend').checked
   }));
