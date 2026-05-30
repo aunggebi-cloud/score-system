@@ -563,7 +563,7 @@ function renderScoreInputs(classId, weekId, scoreMap) {
       <input type="number" class="inp-reading" value="${sc.reading_score ?? ''}" min="0" max="30" placeholder="0">
       <input type="number" class="inp-mc" value="${sc.mc_score ?? ''}" min="0" max="45" placeholder="0">
       <input type="number" class="inp-hw" value="${sc.homework_rate ?? ''}" min="0" max="100" placeholder="0">
-      <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="평가 메모">
+      <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="">
       <input type="checkbox" class="inp-attend" ${sc.attendance === false ? '' : 'checked'} title="출석">
     </div>`;
   }).join('');
