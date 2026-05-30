@@ -36,8 +36,6 @@
     align-items:center;
     -webkit-text-size-adjust:100%;
   }
-
-  /* 헤더 */
   header {
     width:100%; background:var(--navy);
     padding:24px 20px 20px; text-align:center;
@@ -48,38 +46,17 @@
     width:180px; height:180px; border-radius:50%;
     background:rgba(200,169,110,0.08);
   }
-  .header-sub {
-    font-size:10px; color:var(--gold); letter-spacing:3px;
-    text-transform:uppercase; margin-bottom:5px; font-weight:500;
-  }
-  header h1 {
-    font-family:'DM Serif Display',serif;
-    font-size:20px; color:var(--white); font-weight:400;
-  }
+  .header-sub { font-size:10px; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin-bottom:5px; font-weight:500; }
+  header h1 { font-family:'DM Serif Display',serif; font-size:20px; color:var(--white); font-weight:400; }
   header h1 span { color:var(--gold); }
-
-  /* 컨테이너 */
   .container { width:100%; max-width:520px; padding:20px 14px 60px; }
-
-  /* 카드 */
-  .card {
-    background:var(--white); border-radius:16px;
-    box-shadow:var(--shadow); overflow:hidden; margin-bottom:14px;
-  }
-  .card-header {
-    background:var(--navy); padding:13px 18px;
-    display:flex; align-items:center; gap:8px;
-  }
+  .card { background:var(--white); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; margin-bottom:14px; }
+  .card-header { background:var(--navy); padding:13px 18px; display:flex; align-items:center; gap:8px; }
   .card-header .dot { width:7px; height:7px; border-radius:50%; background:var(--gold); }
   .card-header h2 { font-size:12px; color:var(--white); font-weight:600; letter-spacing:1px; }
   .card-body { padding:16px 18px; }
-
-  /* 폼 */
   .form-group { margin-bottom:12px; }
-  .form-group label {
-    display:block; font-size:11px; color:var(--gray);
-    font-weight:500; letter-spacing:1px; margin-bottom:5px;
-  }
+  .form-group label { display:block; font-size:11px; color:var(--gray); font-weight:500; letter-spacing:1px; margin-bottom:5px; }
   .form-group input {
     width:100%; padding:12px 14px;
     border:1.5px solid var(--border); border-radius:10px;
@@ -87,141 +64,59 @@
     color:var(--navy); background:var(--cream);
     outline:none; transition:border-color 0.2s, box-shadow 0.2s;
   }
-  .form-group input:focus {
-    border-color:var(--gold);
-    box-shadow:0 0 0 3px rgba(200,169,110,0.15);
-    background:var(--white);
-  }
-
-  /* 버튼 */
-  .btn {
-    width:100%; padding:14px; border:none; border-radius:10px;
-    font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:all 0.2s; letter-spacing:0.3px;
-  }
+  .form-group input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,169,110,0.15); background:var(--white); }
+  .btn { width:100%; padding:14px; border:none; border-radius:10px; font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:all 0.2s; letter-spacing:0.3px; }
   .btn-primary { background:var(--navy); color:var(--white); }
   .btn-primary:hover { background:var(--navy-light); }
-  .btn-secondary {
-    background:var(--light-gray); color:var(--navy);
-    margin-top:10px;
-  }
-
-  /* 에러 */
-  .error-msg {
-    display:none; background:var(--red-light);
-    border:1px solid #f5c6c2; border-radius:8px;
-    padding:10px 14px; font-size:13px; color:var(--red);
-    margin-top:12px; text-align:center;
-  }
+  .btn-secondary { background:var(--light-gray); color:var(--navy); margin-top:10px; }
+  .error-msg { display:none; background:var(--red-light); border:1px solid #f5c6c2; border-radius:8px; padding:10px 14px; font-size:13px; color:var(--red); margin-top:12px; text-align:center; }
   .error-msg.show { display:block; }
-
-  /* 로딩 */
   .loading { display:none; text-align:center; padding:28px; color:var(--gray); font-size:13px; }
   .loading.show { display:block; }
-  .spinner {
-    width:28px; height:28px;
-    border:3px solid var(--light-gray); border-top-color:var(--gold);
-    border-radius:50%; animation:spin 0.8s linear infinite;
-    margin:0 auto 10px;
-  }
+  .spinner { width:28px; height:28px; border:3px solid var(--light-gray); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 10px; }
   @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* 결과 */
   #result-section { display:none; }
-
-  .student-info {
-    background:var(--navy); border-radius:14px;
-    padding:18px; margin-bottom:14px; position:relative; overflow:hidden;
-  }
-  .student-info::after {
-    content:''; position:absolute; right:-20px; top:-20px;
-    width:90px; height:90px; border-radius:50%;
-    background:rgba(200,169,110,0.1);
-  }
+  .student-info { background:var(--navy); border-radius:14px; padding:18px; margin-bottom:14px; position:relative; overflow:hidden; }
+  .student-info::after { content:''; position:absolute; right:-20px; top:-20px; width:90px; height:90px; border-radius:50%; background:rgba(200,169,110,0.1); }
   .student-name { font-size:22px; font-weight:700; color:var(--white); margin-bottom:3px; }
   .student-class { font-size:12px; color:var(--gold); letter-spacing:1px; }
-
-  /* 누적 요약 */
   .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-  .summary-item {
-    background:var(--white); border:1.5px solid var(--border);
-    border-radius:12px; padding:13px; text-align:center;
-  }
+  .summary-item { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:13px; text-align:center; }
   .summary-label { font-size:11px; color:var(--gray); margin-bottom:4px; }
   .summary-value { font-size:18px; font-weight:700; color:var(--navy); }
-
-  /* 그래프 */
   .chart-wrap { padding:16px 18px 12px; }
   .chart-wrap canvas { max-height:180px; }
-
-  /* 주차 선택 */
   .week-selector { display:flex; gap:7px; flex-wrap:wrap; }
-  .week-btn {
-    padding:6px 13px; border:1.5px solid var(--border);
-    border-radius:18px; font-size:12px;
-    font-family:'Noto Sans KR',sans-serif; font-weight:500;
-    color:var(--gray); background:var(--white); cursor:pointer; transition:all 0.15s;
-  }
+  .week-btn { padding:6px 13px; border:1.5px solid var(--border); border-radius:18px; font-size:12px; font-family:'Noto Sans KR',sans-serif; font-weight:500; color:var(--gray); background:var(--white); cursor:pointer; transition:all 0.15s; }
   .week-btn:hover { border-color:var(--gold); color:var(--navy); }
   .week-btn.active { background:var(--navy); border-color:var(--navy); color:var(--white); }
-
-  /* 점수 그리드 */
   .score-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
   .score-item { background:var(--light-gray); border-radius:12px; padding:13px; }
-  .score-item.total {
-    grid-column:1/-1; background:var(--navy);
-    display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
-  }
+  .score-item.total { grid-column:1/-1; background:var(--navy); display:flex; align-items:center; justify-content:space-between; padding:14px 16px; }
   .score-label { font-size:11px; color:var(--gray); font-weight:500; margin-bottom:5px; }
   .score-item.total .score-label { color:var(--gold); margin:0; }
   .score-value { font-size:22px; font-weight:700; color:var(--navy); }
   .score-item.total .score-value { color:var(--white); font-size:26px; }
   .score-max { font-size:12px; color:var(--gray); font-weight:400; }
   .score-item.total .score-max { color:rgba(255,255,255,0.5); font-size:13px; }
-
-  /* 메타 */
   .meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-  .meta-item {
-    background:var(--white); border:1.5px solid var(--border);
-    border-radius:12px; padding:13px; text-align:center;
-  }
+  .meta-item { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:13px; text-align:center; }
   .meta-label { font-size:11px; color:var(--gray); margin-bottom:3px; }
   .meta-value { font-size:15px; font-weight:700; color:var(--navy); }
-
-  /* 과제 */
-  .homework-card {
-    background:var(--white); border:1.5px solid var(--border);
-    border-radius:12px; padding:13px 16px;
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:10px;
-  }
+  .homework-card { background:var(--white); border:1.5px solid var(--border); border-radius:12px; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .homework-label { font-size:12px; color:var(--gray); font-weight:500; margin-bottom:2px; }
   .homework-rate { font-size:20px; font-weight:700; }
   .homework-eval { font-size:12px; color:var(--gray); margin-top:2px; text-align:right; }
-
-  /* 보충수업 안내 */
-  .notice-card {
-    border-radius:12px; padding:13px 16px;
-    margin-bottom:10px; display:flex; align-items:flex-start; gap:10px;
-  }
-  .notice-card.warning {
-    background:var(--orange-light); border:1.5px solid #fad4a8;
-  }
-  .notice-card.danger {
-    background:var(--red-light); border:1.5px solid #f5c6c2;
-  }
+  .notice-card { border-radius:12px; padding:13px 16px; margin-bottom:10px; display:flex; align-items:flex-start; gap:10px; }
+  .notice-card.warning { background:var(--orange-light); border:1.5px solid #fad4a8; }
+  .notice-card.danger { background:var(--red-light); border:1.5px solid #f5c6c2; }
   .notice-icon { font-size:16px; margin-top:1px; flex-shrink:0; }
   .notice-title { font-size:12px; font-weight:700; margin-bottom:3px; }
   .notice-card.warning .notice-title { color:var(--orange); }
   .notice-card.danger .notice-title { color:var(--red); }
   .notice-body { font-size:12px; line-height:1.6; color:#555; }
-
   .empty-msg { text-align:center; padding:28px; color:var(--gray); font-size:13px; }
-
-  footer {
-    width:100%; text-align:center; padding:18px;
-    font-size:11px; color:var(--gray); letter-spacing:0.5px;
-  }
+  footer { width:100%; text-align:center; padding:18px; font-size:11px; color:var(--gray); letter-spacing:0.5px; }
 </style>
 </head>
 <body>
@@ -233,7 +128,6 @@
 
 <div class="container">
 
-  <!-- 로그인 -->
   <div id="login-section">
     <div class="card">
       <div class="card-header"><div class="dot"></div><h2>학생 로그인</h2></div>
@@ -255,14 +149,12 @@
     </div>
   </div>
 
-  <!-- 결과 -->
   <div id="result-section">
     <div class="student-info">
       <div class="student-name" id="result-name"></div>
       <div class="student-class" id="result-class"></div>
     </div>
 
-    <!-- 주차 선택 -->
     <div class="card">
       <div class="card-header"><div class="dot"></div><h2>주차 선택</h2></div>
       <div class="card-body">
@@ -270,15 +162,12 @@
       </div>
     </div>
 
-    <!-- 이번 주 점수 결과 -->
     <div id="score-content">
       <div class="empty-msg">주차를 선택해주세요.</div>
     </div>
 
-    <!-- 모의고사 점수 표시 -->
     <div id="mock-score-section" style="display:none"></div>
 
-    <!-- 누적 요약 -->
     <div class="summary-grid" id="summary-grid" style="display:none">
       <div class="summary-item">
         <div class="summary-label">누적 평균</div>
@@ -290,7 +179,6 @@
       </div>
     </div>
 
-    <!-- 그래프 -->
     <div class="card" id="chart-card" style="display:none">
       <div class="card-header"><div class="dot"></div><h2>점수 추이</h2></div>
       <div class="chart-wrap">
@@ -347,6 +235,18 @@ async function login() {
   } finally { load.classList.remove('show'); }
 }
 
+function showChartAndSummary() {
+  if (allScores.length > 0) {
+    document.getElementById('summary-grid').style.display = 'grid';
+    document.getElementById('chart-card').style.display = 'block';
+  }
+}
+
+function hideChartAndSummary() {
+  document.getElementById('summary-grid').style.display = 'none';
+  document.getElementById('chart-card').style.display = 'none';
+}
+
 async function showResult() {
   document.getElementById('login-section').style.display = 'none';
   document.getElementById('result-section').style.display = 'block';
@@ -356,49 +256,46 @@ async function showResult() {
   const weeks = await supaFetch(`weeks?class_id=eq.${currentStudent.class_id}&order=id.asc&select=*`);
   currentWeeks = weeks || [];
 
-  // 전체 점수 미리 로드
   if (currentWeeks.length > 0) {
     const weekIds = currentWeeks.map(w => w.id).join(',');
     allScores = await supaFetch(`scores?student_id=eq.${currentStudent.id}&week_id=in.(${weekIds})&select=*`) || [];
   }
 
-  // 누적 요약
   if (allScores.length > 0) {
     const totals = allScores.map(s => s.total_score).filter(v => v !== null);
     const avg = totals.length ? (totals.reduce((a,b)=>a+b,0)/totals.length).toFixed(1) : '-';
     const best = totals.length ? Math.max(...totals) : '-';
     document.getElementById('cum-avg').textContent = avg + (avg !== '-' ? '점' : '');
     document.getElementById('cum-best').textContent = best + (best !== '-' ? '점' : '');
-    document.getElementById('summary-grid').style.display = 'grid';
+    showChartAndSummary();
     renderChart();
   }
 
-  // 주차 버튼
   const selector = document.getElementById('week-selector');
   selector.innerHTML = '';
   if (!currentWeeks.length) {
     selector.innerHTML = '<span style="font-size:13px;color:#8a8a8a">등록된 주차가 없습니다.</span>';
     return;
   }
+
   currentWeeks.slice().reverse().forEach((w, i) => {
     const btn = document.createElement('button');
     btn.className = 'week-btn' + (i === 0 ? ' active' : '');
     btn.textContent = w.label || w.test_date;
     btn.onclick = () => {
-      document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.week-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.dataset.mock) b.style.cssText = 'border-color:#c8a96e;color:#c8a96e;';
+      });
       btn.classList.add('active');
       document.getElementById('score-content').style.display = 'block';
       document.getElementById('mock-score-section').style.display = 'none';
-      if (allScores.length > 0) {
-        document.getElementById('summary-grid').style.display = 'grid';
-        document.getElementById('chart-card').style.display = 'block';
-      }
+      showChartAndSummary();
       loadScore(w.id);
     };
     selector.appendChild(btn);
   });
 
-  // 모의고사 버튼 추가
   await addMockButtons(selector);
 
   const latestWeek = currentWeeks[currentWeeks.length - 1];
@@ -427,6 +324,8 @@ async function addMockButtons(selector) {
       btn.classList.add('active');
       btn.style.cssText = '';
       document.getElementById('score-content').style.display = 'none';
+      document.getElementById('mock-score-section').style.display = 'none';
+      hideChartAndSummary();
       showMockScore(e.id);
     };
     btn.dataset.mock = '1';
@@ -443,9 +342,8 @@ async function showMockScore(examId) {
     return;
   }
 
-  // 반 평균 계산
-  const allScores = await supaFetch(`mock_scores?exam_id=eq.${examId}&select=score`);
-  const validScores = (allScores || []).map(x => x.score).filter(x => x !== null && x > 0);
+  const allMockScores = await supaFetch(`mock_scores?exam_id=eq.${examId}&select=score`);
+  const validScores = (allMockScores || []).map(x => x.score).filter(x => x !== null && x > 0);
   const avg = validScores.length ? (validScores.reduce((a,b) => a+b, 0) / validScores.length).toFixed(1) : null;
 
   section.innerHTML = `
@@ -474,12 +372,10 @@ async function showMockScore(examId) {
 function renderChart() {
   const card = document.getElementById('chart-card');
   card.style.display = 'block';
-
   const scoreMap = {};
   allScores.forEach(s => { scoreMap[s.week_id] = s.total_score; });
   const labels = currentWeeks.map(w => w.label || w.test_date);
   const data   = currentWeeks.map(w => scoreMap[w.id] ?? null);
-
   if (chartInstance) chartInstance.destroy();
   const ctx = document.getElementById('score-chart').getContext('2d');
   chartInstance = new Chart(ctx, {
@@ -504,22 +400,11 @@ function renderChart() {
       responsive: true,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.parsed.y}점`
-          }
-        }
+        tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}점` } }
       },
       scales: {
-        y: {
-          min: 0, max: 100,
-          ticks: { font: { size: 11 }, color: '#8a8a8a' },
-          grid: { color: 'rgba(0,0,0,0.05)' }
-        },
-        x: {
-          ticks: { font: { size: 11 }, color: '#8a8a8a' },
-          grid: { display: false }
-        }
+        y: { min:0, max:100, ticks:{ font:{size:11}, color:'#8a8a8a' }, grid:{ color:'rgba(0,0,0,0.05)' } },
+        x: { ticks:{ font:{size:11}, color:'#8a8a8a' }, grid:{ display:false } }
       }
     }
   });
@@ -538,8 +423,8 @@ async function loadScore(weekId) {
       return;
     }
 
-    const s    = scoreData;
-    const avg  = avgs && avgs.length ? avgs[0] : null;
+    const s = scoreData;
+    const avg = avgs && avgs.length ? avgs[0] : null;
     let rank = '-', total_students = '-';
     if (allWeekSc) {
       const sorted = allWeekSc.map(x => x.total_score).filter(x => x !== null).sort((a,b) => b-a);
@@ -547,12 +432,23 @@ async function loadScore(weekId) {
       rank = sorted.findIndex(v => v === s.total_score) + 1;
     }
 
-    const hwRate = s.homework_rate ?? 0;
-    const hwColor = hwRate >= 90 ? '#27ae60' : hwRate >= 70 ? '#e67e22' : '#c0392b';
+    // homework_rate가 null이면 미기재 처리
+    const hwNull = s.homework_rate === null || s.homework_rate === undefined;
+    const hwRate = hwNull ? null : s.homework_rate;
+    const hwColor = hwRate === null ? '#8a8a8a' : hwRate >= 90 ? '#27ae60' : hwRate >= 70 ? '#e67e22' : '#c0392b';
+    const hwDisplay = hwRate === null ? '미기재' : hwRate + '%';
 
-    // 과제 안내 문구 (수행률에 상관없이 항상 표시)
     let noticeHtml = '';
-    if (hwRate === 0) {
+    if (hwNull) {
+      noticeHtml = `
+        <div class="notice-card danger">
+          <div class="notice-icon">⚠️</div>
+          <div>
+            <div class="notice-title">과제 미제출 안내</div>
+            <div class="notice-body">이번 과제가 제출되지 않았습니다.<br>주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.<br>미인증 시 <strong>일요일</strong> 보충수업이 실시됩니다.</div>
+          </div>
+        </div>`;
+    } else if (hwRate === 0) {
       noticeHtml = `
         <div class="notice-card danger">
           <div class="notice-icon">⚠️</div>
@@ -625,7 +521,7 @@ async function loadScore(weekId) {
           <div class="homework-card">
             <div><div class="homework-label">과제 수행률</div></div>
             <div style="text-align:right">
-              <div class="homework-rate" style="color:${hwColor}">${hwRate}%</div>
+              <div class="homework-rate" style="color:${hwColor}">${hwDisplay}</div>
               ${s.homework_eval ? `<div class="homework-eval">${s.homework_eval}</div>` : ''}
             </div>
           </div>
@@ -653,11 +549,7 @@ function logout() {
 
 document.getElementById('input-pin').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
 document.getElementById('input-name').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('input-pin').focus(); });
-
-// 페이지 로드 시 이름 입력창 포커스 (한글 입력 모드 유도)
-window.addEventListener('load', () => {
-  document.getElementById('input-name').focus();
-});
+window.addEventListener('load', () => { document.getElementById('input-name').focus(); });
 </script>
 </body>
 </html>
