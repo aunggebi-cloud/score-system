@@ -198,6 +198,7 @@
     <button class="tab-btn" onclick="switchTab('tab-week')">주차 관리</button>
     <button class="tab-btn" onclick="switchTab('tab-student')">학생 관리</button>
     <button class="tab-btn" onclick="switchTab('tab-mock')">모의고사</button>
+    <button class="tab-btn" onclick="switchTab('tab-sms')">문자 발송</button>
   </div>
 
   <!-- 탭1: 점수 입력 -->
@@ -386,6 +387,55 @@
 
 </div>
 
+  <!-- 탭5: 문자 발송 -->
+  <div id="tab-sms" class="tab-content">
+    <div class="section-card">
+      <div class="section-head"><h3>발송 대상 설정</h3></div>
+      <div class="section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>반 선택</label>
+            <select id="sms-class" onchange="loadSmsWeeks()">
+              <option value="">반을 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>주차 선택</label>
+            <select id="sms-week">
+              <option value="">주차를 선택하세요</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>과제 수행률 기준</label>
+            <select id="sms-threshold">
+              <option value="100">전체 (100% 이하)</option>
+              <option value="99">미완료 (99% 이하)</option>
+              <option value="70" selected>70% 이하</option>
+              <option value="0">미제출 (0%)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="loadSmsTargets()">대상 조회</button>
+      </div>
+    </div>
+
+    <div class="section-card" id="sms-preview-card" style="display:none">
+      <div class="section-head">
+        <h3 id="sms-preview-title">발송 대상</h3>
+        <button class="btn btn-primary btn-sm" onclick="sendAllSms()">전체 발송</button>
+      </div>
+      <div class="section-body">
+        <div class="form-group" style="margin-bottom:14px">
+          <label>문자 내용 미리보기 (첫 번째 학생 기준)</label>
+          <textarea id="sms-preview-text" rows="6" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:vertical;outline:none;line-height:1.7" readonly></textarea>
+        </div>
+        <div id="sms-target-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -432,7 +482,7 @@ function adminLogin() {
 let classes = [];
 async function initAdmin() {
   classes = await api('classes?order=id.asc&select=*') || [];
-  ['score-class','week-class','week-list-class','new-class','student-list-class','mock-class','mock-score-class','mock-list-class'].forEach(id => {
+  ['score-class','week-class','week-list-class','new-class','student-list-class','mock-class','mock-score-class','mock-list-class','sms-class'].forEach(id => {
     const sel = document.getElementById(id);
     sel.innerHTML = '<option value="">반을 선택하세요</option>';
     classes.forEach(c => {
@@ -638,6 +688,144 @@ async function saveAllScores() {
 
   } catch(e) {
     showToast('❌ 오류 발생: ' + e.message);
+  }
+}
+
+// ── 문자 발송 ────────────────────────────────────────────
+const SMS_FUNCTION_URL = 'https://rcpzinsdocmpnfxkfbil.supabase.co/functions/v1/send-sms';
+
+async function loadSmsWeeks() {
+  const classId = document.getElementById('sms-class').value;
+  const sel = document.getElementById('sms-week');
+  sel.innerHTML = '<option value="">주차를 선택하세요</option>';
+  document.getElementById('sms-preview-card').style.display = 'none';
+  if (!classId) return;
+  const weeks = await api(`weeks?class_id=eq.${classId}&order=id.desc&select=*`) || [];
+  weeks.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w.id; opt.textContent = w.label || w.test_date;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadSmsTargets() {
+  const classId = document.getElementById('sms-class').value;
+  const weekId = document.getElementById('sms-week').value;
+  const threshold = parseInt(document.getElementById('sms-threshold').value);
+  if (!classId || !weekId) { showToast('반과 주차를 선택해주세요.'); return; }
+
+  const [students, scores] = await Promise.all([
+    api(`students?class_id=eq.${classId}&is_active=eq.true&order=name.asc&select=*`),
+    api(`scores?week_id=eq.${weekId}&select=*`)
+  ]);
+
+  const scoreMap = {};
+  (scores || []).forEach(s => { scoreMap[s.student_id] = s; });
+
+  const targets = (students || []).filter(st => {
+    const sc = scoreMap[st.id];
+    const hw = sc ? sc.homework_rate : 0;
+    return hw <= threshold;
+  }).map(st => {
+    const sc = scoreMap[st.id];
+    return {
+      id: st.id,
+      name: st.name,
+      phone: st.phone || '',
+      hw: sc ? sc.homework_rate : 0,
+      isEmpty: !sc || sc.homework_rate === 0
+    };
+  });
+
+  const weekSel = document.getElementById('sms-week');
+  const weekLabel = weekSel.options[weekSel.selectedIndex]?.text || '';
+  const className = classes.find(c => c.id == classId)?.name || '';
+
+  const card = document.getElementById('sms-preview-card');
+  const titleEl = document.getElementById('sms-preview-title');
+  const listEl = document.getElementById('sms-target-list');
+  const previewEl = document.getElementById('sms-preview-text');
+
+  card.style.display = 'block';
+  titleEl.textContent = `발송 대상 — ${targets.length}명`;
+
+  if (targets.length === 0) {
+    listEl.innerHTML = '<p style="font-size:13px;color:var(--gray)">해당 조건의 발송 대상이 없습니다.</p>';
+    previewEl.value = '';
+    return;
+  }
+
+  // 미리보기 문자 (첫 번째 학생 기준)
+  const first = targets[0];
+  previewEl.value = makeSmsText(first.name, weekLabel, first.hw);
+
+  // 대상 목록
+  listEl.innerHTML = `<table class="data-table">
+    <thead><tr><th>이름</th><th>과제(%)</th><th>연락처</th><th>상태</th></tr></thead>
+    <tbody>${targets.map(t => `
+      <tr>
+        <td><strong>${t.name}</strong></td>
+        <td>${t.hw}%</td>
+        <td style="font-size:12px;font-family:monospace">${t.phone || '번호없음'}</td>
+        <td><span class="badge ${t.phone ? 'badge-active' : 'badge-inactive'}">${t.phone ? '발송가능' : '번호없음'}</span></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+
+  // targets 저장
+  window._smsTargets = targets;
+  window._smsWeekLabel = weekLabel;
+}
+
+function makeSmsText(name, weekLabel, hw) {
+  if (hw === 0) {
+    return `[용산대성N학원 영어과]
+${name} 학생의 ${weekLabel} 과제가 인증되지 않았습니다.
+주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
+미인증 시 일요일 보충수업이 실시됩니다.
+감사합니다.`;
+  } else if (hw <= 70) {
+    return `[용산대성N학원 영어과]
+${name} 학생의 ${weekLabel} 과제 수행률이 ${hw}%입니다.
+주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
+미인증 시 일요일 보충수업이 실시됩니다.
+감사합니다.`;
+  } else {
+    return `[용산대성N학원 영어과]
+${name} 학생의 ${weekLabel} 과제 수행률이 ${hw}%입니다.
+빠진 부분은 주말까지 완료 후 영어알림톡으로 인증해 주세요.
+미인증 시 일요일 보충수업이 실시됩니다.
+감사합니다.`;
+  }
+}
+
+async function sendAllSms() {
+  const targets = window._smsTargets || [];
+  const weekLabel = window._smsWeekLabel || '';
+  const validTargets = targets.filter(t => t.phone);
+
+  if (!validTargets.length) { showToast('발송 가능한 대상이 없습니다.'); return; }
+  if (!confirm(`${validTargets.length}명에게 문자를 발송할까요?`)) return;
+
+  showToast('발송 중...');
+
+  const messages = validTargets.map(t => ({
+    to: t.phone,
+    text: makeSmsText(t.name, weekLabel, t.hw)
+  }));
+
+  try {
+    const res = await fetch(SMS_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${ANON_KEY}`
+      },
+      body: JSON.stringify({ messages })
+    });
+    const data = await res.json();
+    showToast(`✅ 발송 완료 — 성공 ${data.success}건 / 실패 ${data.fail}건`, 4000);
+  } catch (e) {
+    showToast('❌ 발송 오류: ' + e.message);
   }
 }
 
