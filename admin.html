@@ -411,7 +411,8 @@
               <option value="100">전체 (100% 이하)</option>
               <option value="99">미완료 (99% 이하)</option>
               <option value="70" selected>70% 이하</option>
-              <option value="0">미제출 (0%)</option>
+              <option value="0">0% 이하</option>
+              <option value="-1">미기재 (점수 미입력)</option>
             </select>
           </div>
         </div>
@@ -725,6 +726,7 @@ async function loadSmsTargets() {
 
   const targets = (students || []).filter(st => {
     const sc = scoreMap[st.id];
+    if (threshold === -1) return !sc; // 미기재만
     const hw = sc ? sc.homework_rate : 0;
     return hw <= threshold;
   }).map(st => {
