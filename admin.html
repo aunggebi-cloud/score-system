@@ -78,7 +78,7 @@
   }
   .tab-btn.active { color:var(--navy); border-bottom-color:var(--gold); font-weight:700; }
 
-  .tab-content { display:none; padding:16px; max-width:1100px; margin:0 auto; }
+  .tab-content { display:none; padding:16px; max-width:700px; margin:0 auto; }
   .tab-content.active { display:block; }
 
   /* 섹션 카드 */
@@ -138,7 +138,7 @@
 
   /* 점수 입력 그리드 */
   .score-input-row {
-    display:grid; grid-template-columns:fit-content(120px) 70px 70px 70px 70px 110px 50px;
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px 60px;
     gap:8px; align-items:center; padding:8px 0;
     border-bottom:1px solid var(--light-gray);
   }
@@ -152,7 +152,7 @@
   }
   .score-input-row input:focus { border-color:var(--gold); background:var(--white); }
   .score-header {
-    display:grid; grid-template-columns:fit-content(120px) 70px 70px 70px 70px 110px 50px;
+    display:grid; grid-template-columns:1fr 80px 80px 80px 80px 120px 60px;
     gap:8px; padding:8px 0 4px;
     font-size:11px; color:var(--gray); font-weight:600; letter-spacing:0.5px;
     border-bottom:2px solid var(--border); margin-bottom:4px;
