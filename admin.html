@@ -733,7 +733,7 @@ async function loadSmsTargets() {
       name: st.name,
       phone: st.phone || '',
       hw: sc ? sc.homework_rate : 0,
-      isEmpty: !sc || sc.homework_rate === 0
+      isEmpty: !sc
     };
   });
 
@@ -757,7 +757,7 @@ async function loadSmsTargets() {
 
   // 미리보기 문자 (첫 번째 학생 기준)
   const first = targets[0];
-  previewEl.value = makeSmsText(first.name, weekLabel, first.hw);
+  previewEl.value = makeSmsText(first.name, weekLabel, first.hw, first.isEmpty);
 
   // 대상 목록
   listEl.innerHTML = `<table class="data-table">
@@ -780,19 +780,19 @@ function makeSmsText(name, weekLabel, hw) {
   if (hw === 0) {
     return `[용산대성N학원 영어과]
 ${name} 학생의 ${weekLabel} 과제가 인증되지 않았습니다.
-주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
+토요일까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
 미인증 시 일요일 보충수업이 실시됩니다.
 감사합니다.`;
   } else if (hw <= 70) {
     return `[용산대성N학원 영어과]
 ${name} 학생의 ${weekLabel} 과제 수행률이 ${hw}%입니다.
-주말까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
+토요일까지 완료된 과제 사진을 찍어 영어알림톡으로 인증해 주세요.
 미인증 시 일요일 보충수업이 실시됩니다.
 감사합니다.`;
   } else {
     return `[용산대성N학원 영어과]
 ${name} 학생의 ${weekLabel} 과제 수행률이 ${hw}%입니다.
-빠진 부분은 주말까지 완료 후 영어알림톡으로 인증해 주세요.
+빠진 부분은 토요일까지 완료 후 영어알림톡으로 인증해 주세요.
 미인증 시 일요일 보충수업이 실시됩니다.
 감사합니다.`;
   }
@@ -810,7 +810,7 @@ async function sendAllSms() {
 
   const messages = validTargets.map(t => ({
     to: t.phone,
-    text: makeSmsText(t.name, weekLabel, t.hw)
+    text: makeSmsText(t.name, weekLabel, t.hw, t.isEmpty)
   }));
 
   try {
