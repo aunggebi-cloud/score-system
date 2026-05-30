@@ -401,13 +401,13 @@
           </div>
           <div class="form-group">
             <label>주차 선택</label>
-            <select id="sms-week">
+            <select id="sms-week" onchange="loadSmsTargets()">
               <option value="">주차를 선택하세요</option>
             </select>
           </div>
           <div class="form-group">
             <label>과제 수행률 기준</label>
-            <select id="sms-threshold">
+            <select id="sms-threshold" onchange="loadSmsTargets()">
               <option value="100">전체 (100% 이하)</option>
               <option value="99">미완료 (99% 이하)</option>
               <option value="70" selected>70% 이하</option>
@@ -415,7 +415,6 @@
             </select>
           </div>
         </div>
-        <button class="btn btn-gold" onclick="loadSmsTargets()">대상 조회</button>
       </div>
     </div>
 
@@ -561,6 +560,7 @@ async function loadWeeksForScore() {
     opt.value = w.id; opt.textContent = w.label || w.test_date;
     sel.appendChild(opt);
   });
+  if (weeks.length > 0) loadSmsTargets();
 }
 
 async function loadScoreInputs() {
@@ -706,6 +706,7 @@ async function loadSmsWeeks() {
     opt.value = w.id; opt.textContent = w.label || w.test_date;
     sel.appendChild(opt);
   });
+  if (weeks.length > 0) loadSmsTargets();
 }
 
 async function loadSmsTargets() {
