@@ -400,7 +400,7 @@ async function showResult() {
 }
 
 async function loadMockResults() {
-  const exams = await supaFetch(`mock_exams?class_id=eq.${currentStudent.class_id}&order=id.desc&select=*`);
+  const exams = await supaFetch(`mock_exams?class_id=eq.${currentStudent.class_id}&order=id.asc&select=*`);
   if (!exams || !exams.length) return;
 
   const examIds = exams.map(e => e.id).join(',');
@@ -411,24 +411,42 @@ async function loadMockResults() {
   scores.forEach(s => { scoreMap[s.exam_id] = s; });
 
   const card = document.getElementById('mock-card');
-  const content = document.getElementById('mock-content');
   card.style.display = 'block';
 
-  content.innerHTML = exams.map(e => {
-    const s = scoreMap[e.id];
-    if (!s) return '';
-    const totalColor = s.total_score >= 80 ? '#27ae60' : s.total_score >= 60 ? '#e67e22' : '#c0392b';
-    return `<div style="border-bottom:1px solid var(--border);padding:12px 0;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">${e.label || e.exam_date}</div>
-        <div style="font-size:12px;color:var(--gray)">객관식 ${s.multiple_score}점 · 서술형 ${s.essay_score}점</div>
-        ${s.memo ? `<div style="font-size:12px;color:var(--gray);margin-top:2px">${s.memo}</div>` : ''}
-      </div>
-      <div style="font-size:24px;font-weight:700;color:${totalColor}">${s.total_score}<span style="font-size:13px;color:var(--gray);font-weight:400"> / 200</span></div>
-    </div>`;
-  }).filter(Boolean).join('');
+  // 버튼 선택자 생성
+  const selectorHtml = exams.map((e, i) =>
+    `<button class="week-btn${i === 0 ? ' active' : ''}" onclick="selectMockExam(this, ${e.id})">${e.label || e.exam_date}</button>`
+  ).join('');
 
-  if (!content.innerHTML) card.style.display = 'none';
+  document.getElementById('mock-content').innerHTML =
+    `<div class="week-selector" style="margin-bottom:14px">${selectorHtml}</div>` +
+    `<div id="mock-score-display"></div>`;
+
+  window._mockScoreMap = scoreMap;
+  showMockScore(exams[0].id);
+}
+
+function selectMockExam(btn, examId) {
+  document.querySelectorAll('#mock-content .week-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showMockScore(examId);
+}
+
+function showMockScore(examId) {
+  const s = window._mockScoreMap?.[examId];
+  const display = document.getElementById('mock-score-display');
+  if (!display) return;
+  if (!s) {
+    display.innerHTML = '<div class="empty-msg">해당 모의고사 점수가 아직 입력되지 않았습니다.</div>';
+    return;
+  }
+  const scoreColor = s.score >= 80 ? '#27ae60' : s.score >= 60 ? '#e67e22' : '#c0392b';
+  display.innerHTML = `
+    <div style="background:var(--navy);border-radius:12px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;color:var(--gold);font-weight:500">모의고사 점수</div>
+      <div style="font-size:28px;font-weight:700;color:white">${s.score}<span style="font-size:14px;color:rgba(255,255,255,0.5);font-weight:400"> / 100</span></div>
+    </div>
+    ${s.memo ? `<div style="margin-top:10px;font-size:13px;color:var(--gray);padding:0 4px">${s.memo}</div>` : ''}`;
 }
 
 function renderChart() {
