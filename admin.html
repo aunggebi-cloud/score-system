@@ -138,7 +138,7 @@
 
   /* 점수 입력 그리드 */
   .score-input-row {
-    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px;
+    display:grid; grid-template-columns:100px 75px 75px 75px 75px 120px 55px;
     gap:8px; align-items:center; padding:8px 0;
     border-bottom:1px solid var(--light-gray);
   }
@@ -152,7 +152,7 @@
   }
   .score-input-row input:focus { border-color:var(--gold); background:var(--white); }
   .score-header {
-    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px;
+    display:grid; grid-template-columns:100px 75px 75px 75px 75px 120px 55px;
     gap:8px; padding:8px 0 4px;
     font-size:11px; color:var(--gray); font-weight:600; letter-spacing:0.5px;
     border-bottom:2px solid var(--border); margin-bottom:4px;
@@ -359,11 +359,9 @@
           </div>
         </div>
         <div id="mock-score-card" style="display:none">
-          <div style="display:grid;grid-template-columns:1fr 100px 100px 100px 150px;gap:8px;padding:8px 0 4px;font-size:11px;color:var(--gray);font-weight:600;border-bottom:2px solid var(--border);margin-bottom:4px;">
+          <div style="display:grid;grid-template-columns:1fr 100px 150px;gap:8px;padding:8px 0 4px;font-size:11px;color:var(--gray);font-weight:600;border-bottom:2px solid var(--border);margin-bottom:4px;">
             <span>이름</span>
-            <span style="text-align:center">객관식<br><small>/100</small></span>
-            <span style="text-align:center">서술형<br><small>/100</small></span>
-            <span style="text-align:center">합계</span>
+            <span style="text-align:center">점수<br><small>/100</small></span>
             <span style="text-align:center">메모</span>
           </div>
           <div id="mock-score-inputs"></div>
@@ -707,13 +705,10 @@ function renderMockInputs(classId, examId, scoreMap) {
   const students = studentCache[classId] || [];
   container.innerHTML = students.map(st => {
     const sc = scoreMap[st.id] || {};
-    const total = (sc.multiple_score ?? 0) + (sc.essay_score ?? 0);
-    return `<div style="display:grid;grid-template-columns:1fr 100px 100px 100px 150px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--light-gray)" data-student-id="${st.id}">
+    return `<div style="display:grid;grid-template-columns:1fr 100px 150px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--light-gray)" data-student-id="${st.id}">
       <span style="font-size:13px;font-weight:500">${st.name}</span>
-      <input type="number" class="mock-multiple" value="${sc.multiple_score ?? ''}" min="0" max="100" placeholder="0" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;outline:none;width:100%">
-      <input type="number" class="mock-essay" value="${sc.essay_score ?? ''}" min="0" max="100" placeholder="0" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;outline:none;width:100%">
-      <span style="font-size:14px;font-weight:700;text-align:center;color:var(--navy)">${sc.multiple_score != null ? total : '-'}</span>
-      <input type="text" class="mock-memo" value="${sc.memo ?? ''}" placeholder="메모" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;width:100%">
+      <input type="number" class="mock-score" value="${sc.score ?? ''}" min="0" max="100" placeholder="0" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;text-align:center;outline:none;width:100%">
+      <input type="text" class="mock-memo" value="${sc.memo ?? ''}" placeholder="" style="padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;width:100%">
     </div>`;
   }).join('');
 }
@@ -731,8 +726,7 @@ async function saveMockScores() {
   const upserts = Array.from(rows).map(row => ({
     student_id: parseInt(row.dataset.studentId),
     exam_id: examId,
-    multiple_score: parseFloat(row.querySelector('.mock-multiple').value) || 0,
-    essay_score: parseFloat(row.querySelector('.mock-essay').value) || 0,
+    score: parseFloat(row.querySelector('.mock-score').value) || 0,
     memo: row.querySelector('.mock-memo').value.trim()
   }));
 
@@ -742,7 +736,7 @@ async function saveMockScores() {
         return fetch(`${SUPABASE_URL}/rest/v1/mock_scores?id=eq.${existMap[u.student_id]}`, {
           method: 'PATCH',
           headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${ANON_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ multiple_score: u.multiple_score, essay_score: u.essay_score, memo: u.memo })
+          body: JSON.stringify({ score: u.score, memo: u.memo })
         });
       } else {
         return fetch(`${SUPABASE_URL}/rest/v1/mock_scores`, {
