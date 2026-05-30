@@ -138,7 +138,7 @@
 
   /* 점수 입력 그리드 */
   .score-input-row {
-    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px 200px;
+    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px;
     gap:8px; align-items:center; padding:8px 0;
     border-bottom:1px solid var(--light-gray);
   }
@@ -152,7 +152,7 @@
   }
   .score-input-row input:focus { border-color:var(--gold); background:var(--white); }
   .score-header {
-    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px 200px;
+    display:grid; grid-template-columns:100px 80px 80px 80px 80px 130px 55px;
     gap:8px; padding:8px 0 4px;
     font-size:11px; color:var(--gray); font-weight:600; letter-spacing:0.5px;
     border-bottom:2px solid var(--border); margin-bottom:4px;
@@ -235,7 +235,6 @@
           <span style="text-align:center">과제<br><small style="font-weight:400">%</small></span>
           <span style="text-align:center">과제평가</span>
           <span style="text-align:center">출석</span>
-          <span style="text-align:center">특이사항</span>
         </div>
         <div id="score-inputs-container"></div>
       </div>
@@ -566,7 +565,6 @@ function renderScoreInputs(classId, weekId, scoreMap) {
       <input type="number" class="inp-hw" value="${sc.homework_rate ?? ''}" min="0" max="100" placeholder="0">
       <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="평가 메모">
       <input type="checkbox" class="inp-attend" ${sc.attendance === false ? '' : 'checked'} title="출석">
-      <input type="text" class="inp-note" value="${sc.note ?? ''}" placeholder="특이사항">
     </div>`;
   }).join('');
 }
@@ -585,8 +583,7 @@ async function saveAllScores() {
     mc_score: parseFloat(row.querySelector('.inp-mc').value) || 0,
     homework_rate: parseInt(row.querySelector('.inp-hw').value) || 0,
     homework_eval: row.querySelector('.inp-eval').value.trim(),
-    attendance: row.querySelector('.inp-attend').checked,
-    note: row.querySelector('.inp-note').value.trim()
+    attendance: row.querySelector('.inp-attend').checked
   }));
 
   try {
@@ -613,8 +610,7 @@ async function saveAllScores() {
             mc_score: u.mc_score,
             homework_rate: u.homework_rate,
             homework_eval: u.homework_eval,
-            attendance: u.attendance,
-            note: u.note
+            attendance: u.attendance
           })
         });
       } else {
@@ -822,12 +818,13 @@ async function loadStudentList() {
   if (!students.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 학생이 없습니다.</p>'; return; }
 
   container.innerHTML = `<table class="data-table">
-    <thead><tr><th>이름</th><th>PIN</th><th>상태</th><th></th></tr></thead>
+    <thead><tr><th>이름</th><th>PIN</th><th>상태</th><th>특이사항</th><th></th></tr></thead>
     <tbody>${students.map(s => `
       <tr>
         <td><strong>${s.name}</strong></td>
         <td style="font-family:monospace">${s.pin || '-'}</td>
         <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? '재원' : '퇴원'}</span></td>
+        <td><input type="text" value="${s.note || ''}" placeholder="특이사항 입력" onblur="updateStudentNote(${s.id}, this.value)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;width:150px;outline:none"></td>
         <td style="display:flex;gap:6px">
           ${s.is_active
             ? `<button class="btn btn-danger btn-sm" onclick="toggleStudent(${s.id}, false)">퇴원</button>`
@@ -837,6 +834,11 @@ async function loadStudentList() {
         </td>
       </tr>`).join('')}
     </tbody></table>`;
+}
+
+async function updateStudentNote(id, note) {
+  await api(`students?id=eq.${id}`, 'PATCH', { note });
+  showToast('✅ 특이사항이 저장됐어요.');
 }
 
 async function toggleStudent(id, active) {
