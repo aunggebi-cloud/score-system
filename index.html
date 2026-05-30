@@ -430,7 +430,7 @@ async function addMockButtons(selector) {
   });
 }
 
-function showMockScore(examId) {
+async function showMockScore(examId) {
   const s = window._mockScoreMap?.[examId];
   const section = document.getElementById('mock-score-section');
   section.style.display = 'block';
@@ -438,16 +438,31 @@ function showMockScore(examId) {
     section.innerHTML = '<div class="empty-msg">해당 모의고사 점수가 아직 입력되지 않았습니다.</div>';
     return;
   }
-  const scoreColor = s.score >= 80 ? '#27ae60' : s.score >= 60 ? '#e67e22' : '#c0392b';
+
+  // 반 평균 계산
+  const allScores = await supaFetch(`mock_scores?exam_id=eq.${examId}&select=score`);
+  const validScores = (allScores || []).map(x => x.score).filter(x => x !== null && x > 0);
+  const avg = validScores.length ? (validScores.reduce((a,b) => a+b, 0) / validScores.length).toFixed(1) : null;
+
   section.innerHTML = `
     <div class="card">
       <div class="card-header"><div class="dot"></div><h2>모의고사 점수</h2></div>
       <div class="card-body">
-        <div class="score-item total" style="border-radius:12px">
+        <div class="score-item total" style="border-radius:12px;margin-bottom:10px">
           <div class="score-label">점수</div>
           <div><span class="score-value" style="color:white">${s.score}</span><span class="score-max"> / 100</span></div>
         </div>
-        ${s.memo ? `<div style="margin-top:10px;font-size:13px;color:var(--gray)">${s.memo}</div>` : ''}
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">반 평균</div>
+            <div class="meta-value">${avg ? avg + '점' : '-'}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">응시 인원</div>
+            <div class="meta-value">${validScores.length}명</div>
+          </div>
+        </div>
+        ${s.memo ? `<div style="margin-top:6px;font-size:13px;color:var(--gray)">${s.memo}</div>` : ''}
       </div>
     </div>`;
 }
