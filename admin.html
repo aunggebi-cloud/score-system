@@ -536,7 +536,7 @@ async function loadScoreInputs() {
 
   // 학생 목록도 캐시
   if (!studentCache[classId]) {
-    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`) || [];
+    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=name.asc&select=*`) || [];
   }
   const scores = await api(`scores?week_id=eq.${weekId}&select=*`) || [];
 
@@ -698,7 +698,7 @@ async function loadMockScoreInputs() {
   container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
 
   if (!studentCache[classId]) {
-    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=id.asc&select=*`) || [];
+    studentCache[classId] = await api(`students?class_id=eq.${classId}&is_active=eq.true&order=name.asc&select=*`) || [];
   }
   const scores = await api(`mock_scores?exam_id=eq.${examId}&select=*`) || [];
   mockScoreCache[examId] = {};
@@ -817,7 +817,7 @@ async function loadStudentList() {
   if (!classId) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">반을 선택하면 학생 목록이 표시됩니다.</p>'; return; }
 
   container.innerHTML = '<div class="mini-loading"><span class="spinner-sm"></span>불러오는 중...</div>';
-  const students = await api(`students?class_id=eq.${classId}&order=id.asc&select=*`) || [];
+  const students = await api(`students?class_id=eq.${classId}&order=name.asc&select=*`) || [];
 
   if (!students.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 학생이 없습니다.</p>'; return; }
 
