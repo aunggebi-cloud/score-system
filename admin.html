@@ -608,9 +608,9 @@ function renderScoreInputs(classId, weekId, scoreMap) {
     const sc = scoreMap[st.id] || {};
     return `<div class="score-input-row" data-student-id="${st.id}">
       <span class="student-name">${st.name}</span>
-      <input type="number" class="inp-word" value="${sc.word_score ?? ''}" min="0" max="25" placeholder="0">
-      <input type="number" class="inp-reading" value="${sc.reading_score ?? ''}" min="0" max="30" placeholder="0">
-      <input type="number" class="inp-mc" value="${sc.mc_score ?? ''}" min="0" max="45" placeholder="0">
+      <input type="number" class="inp-word" value="${sc.word_score ?? ''}" min="0" max="25" placeholder="">
+      <input type="number" class="inp-reading" value="${sc.reading_score ?? ''}" min="0" max="30" placeholder="">
+      <input type="number" class="inp-mc" value="${sc.mc_score ?? ''}" min="0" max="45" placeholder="">
       <input type="number" class="inp-hw" value="${sc.homework_rate ?? ''}" min="0" max="100" placeholder="">
       <input type="text" class="inp-eval" value="${sc.homework_eval ?? ''}" placeholder="">
       <input type="checkbox" class="inp-attend" ${sc.attendance === false ? '' : 'checked'} title="출석">
@@ -768,7 +768,7 @@ async function loadSmsTargets() {
     <tbody>${targets.map(t => `
       <tr>
         <td><strong>${t.name}</strong></td>
-        <td>${t.hw}%</td>
+        <td>${t.hw !== null && t.hw !== undefined && !t.isEmpty ? t.hw + "%" : "미기재"}</td>
         <td style="font-size:12px;font-family:monospace">${t.phone || '번호없음'}</td>
         <td><span class="badge ${t.phone ? 'badge-active' : 'badge-inactive'}">${t.phone ? '발송가능' : '번호없음'}</span></td>
       </tr>`).join('')}
