@@ -292,6 +292,10 @@
             <input type="text" id="new-pin" placeholder="4자리 숫자" maxlength="4">
           </div>
           <div class="form-group">
+            <label>연락처</label>
+            <input type="text" id="new-phone" placeholder="01012345678">
+          </div>
+          <div class="form-group">
             <label>반</label>
             <select id="new-class">
               <option value="">반 선택</option>
@@ -998,10 +1002,12 @@ async function addStudent() {
   const classId = document.getElementById('new-class').value;
   if (!name || !pin || !classId) { showToast('이름, PIN, 반을 모두 입력해주세요.'); return; }
 
-  await api('students', 'POST', { name, pin, class_id: parseInt(classId), is_active: true });
+  const phone = document.getElementById('new-phone').value.trim();
+  await api('students', 'POST', { name, pin, phone: phone || null, class_id: parseInt(classId), is_active: true });
   showToast(`✅ ${name} 학생이 추가됐어요.`);
   document.getElementById('new-name').value = '';
   document.getElementById('new-pin').value = '';
+  document.getElementById('new-phone').value = '';
 
   if (document.getElementById('student-list-class').value == classId) loadStudentList();
 }
@@ -1017,11 +1023,12 @@ async function loadStudentList() {
   if (!students.length) { container.innerHTML = '<p style="font-size:13px;color:var(--gray)">등록된 학생이 없습니다.</p>'; return; }
 
   container.innerHTML = `<table class="data-table">
-    <thead><tr><th>이름</th><th>PIN</th><th>상태</th><th>특이사항</th><th></th></tr></thead>
+    <thead><tr><th>이름</th><th>PIN</th><th>연락처</th><th>상태</th><th>특이사항</th><th></th></tr></thead>
     <tbody>${students.map(s => `
       <tr>
         <td><strong>${s.name}</strong></td>
         <td style="font-family:monospace">${s.pin || '-'}</td>
+        <td><input type="text" value="${s.phone || ''}" placeholder="연락처" onblur="updateStudentPhone(${s.id}, this.value)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;width:120px;outline:none"></td>
         <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? '재원' : '퇴원'}</span></td>
         <td><input type="text" value="${s.note || ''}" placeholder="특이사항 입력" onblur="updateStudentNote(${s.id}, this.value)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;width:150px;outline:none"></td>
         <td style="display:flex;gap:6px">
@@ -1038,6 +1045,11 @@ async function loadStudentList() {
 async function updateStudentNote(id, note) {
   await api(`students?id=eq.${id}`, 'PATCH', { note });
   showToast('✅ 특이사항이 저장됐어요.');
+}
+
+async function updateStudentPhone(id, phone) {
+  await api(`students?id=eq.${id}`, 'PATCH', { phone: phone || null });
+  showToast('✅ 연락처가 저장됐어요.');
 }
 
 async function toggleStudent(id, active) {
