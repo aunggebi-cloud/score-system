@@ -1158,7 +1158,7 @@ async function loadStudentList() {
     <thead><tr><th>이름</th><th>PIN</th><th>연락처</th><th>상태</th><th>특이사항</th><th></th></tr></thead>
     <tbody>${students.map(s => `
       <tr>
-        <td><strong>${s.name}</strong></td>
+        <td><input type="text" value="${s.name}" onblur="updateStudentName(${s.id}, this.value)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:'Noto Sans KR',sans-serif;width:80px;outline:none;font-weight:600"></td>
         <td style="font-family:monospace">${s.pin || '-'}</td>
         <td><input type="text" value="${s.phone || ''}" placeholder="연락처" onblur="updateStudentPhone(${s.id}, this.value)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:'Noto Sans KR',sans-serif;width:120px;outline:none"></td>
         <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? '재원' : '퇴원'}</span></td>
@@ -1172,6 +1172,12 @@ async function loadStudentList() {
         </td>
       </tr>`).join('')}
     </tbody></table>`;
+}
+
+async function updateStudentName(id, name) {
+  if (!name.trim()) { showToast('이름을 입력해주세요.'); loadStudentList(); return; }
+  await api(`students?id=eq.${id}`, 'PATCH', { name: name.trim() });
+  showToast('✅ 이름이 수정됐어요.');
 }
 
 async function updateStudentNote(id, note) {
